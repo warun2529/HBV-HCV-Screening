@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบคัดกรองไวรัสตับอักเสบบีและซี รพ.สต.บ้านกุดแฮดสามัคคี</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+
+  <style>
+    :root {
+      --primary-theme: #0f766e;
+      --primary-dark: #115e59;
+      --bg-mint: #f0fdf4;
+      --sidebar-bg: #ffffff;
+      --text-main: #1e293b;
+      --accent-color: #0ea5e9;
+    }
+    
+    body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; color: var(--text-main); overflow-x: hidden; }
+    
+    .top-header {
+      background-color: var(--primary-theme); color: white; height: 65px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 25px; position: sticky; top: 0; z-index: 1050; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .top-header .brand-title { font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+
+    #app-wrapper { display: flex; min-height: calc(100vh - 65px); }
+    
+    #sidebar {
+      width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; position: fixed; height: calc(100vh - 65px);
+      z-index: 1000; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+    }
+    
+    .sidebar-section-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; padding: 20px 20px 5px 20px; font-weight: 600; }
+    .nav-list { list-style: none; padding: 10px 15px; margin: 0; }
+    .nav-item-custom { margin-bottom: 4px; }
+    .nav-link-custom {
+      display: flex; align-items: center; gap: 15px; padding: 10px 15px;
+      color: #475569; text-decoration: none; border-radius: 8px; font-size: 0.95rem; font-weight: 500; transition: all 0.2s ease;
+    }
+    .nav-link-custom:hover, .nav-link-custom.active { background-color: var(--bg-mint); color: var(--primary-theme); font-weight: 600; }
+    .nav-link-custom i { width: 22px; text-align: center; font-size: 1.1rem; }
+    
+    #main-content { flex: 1; margin-left: 260px; padding: 40px; background-color: #f8fafc; min-height: calc(100vh - 65px); width: calc(100% - 260px); }
+
+    .dashboard-header { background: linear-gradient(135deg, var(--primary-theme), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.05); }
+    
+    .card-3d {
+      background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 20px;
+      box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.04), -8px -8px 20px rgba(255, 255, 255, 0.8);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden;
+    }
+    
+    .icon-3d-wrapper {
+      width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: white;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.1), inset -2px -2px 6px rgba(0,0,0,0.1), inset 2px 2px 6px rgba(255,255,255,0.3);
+    }
+    
+    .bg-gradient-primary { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
+    .bg-gradient-success { background: linear-gradient(135deg, #10b981, #059669); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .bg-gradient-danger  { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    
+    .metric-value-3d { font-size: 2.2rem; font-weight: 800; color: #1e293b; line-height: 1.1; }
+    .metric-label-3d { color: #64748b; font-weight: 600; font-size: 0.85rem; }
+    .chart-container-3d { position: relative; height: 320px; width: 100%; }
+
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.85); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; z-index: 9999;
+    }
+
+    @media print {
+      @page { size: A4; margin: 10mm 15mm; } 
+      body { background-color: #fff; font-size: 12pt; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      #app-wrapper { display: block !important; }
+      #sidebar, .top-header, .no-print { display: none !important; }
+      #main-content { margin: 0 !important; padding: 0 !important; background-color: #fff; width: 100% !important;}
+      .print-certificate-container { 
+        width: 100%; margin: 0; padding: 20px; 
+        box-shadow: none !important; border: none !important; 
+        font-family: 'Sarabun', serif; font-size: 16pt;
+      }
+      .cert-inner-page { width: 100% !important; height: auto !important; padding: 0 !important; overflow: visible !important; position: static !important; }
+      .card-3d { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; }
+      .bg-light { background-color: transparent !important; }
+      
+      /* === ปรับแต่งแบบฟอร์มซักประวัติ ให้ออกมาเหมือนในรูปภาพเป๊ะ และได้ 2 หน้า A4 === */
+      #historyForm { font-family: 'Sarabun', sans-serif !important; font-size: 12pt !important; color: #000 !important; line-height: 1.3 !important; }
+      #historyForm .text-center h5 { font-size: 16pt !important; margin: 0 0 5px 0 !important; font-weight: bold !important; color: #000 !important; }
+      #historyForm p.text-muted { font-size: 12pt !important; color: #000 !important; margin: 0 0 15px 0 !important; }
+
+      /* จัดการระยะห่างของแต่ละส่วนให้กระชับขึ้น */
+      #historyForm .form-section { margin-bottom: 12px !important; padding: 0 !important; background: transparent !important; border: none !important; box-shadow: none !important; break-inside: auto !important; page-break-inside: auto !important;}
+      #historyForm .section-title { font-size: 13pt !important; padding-left: 8px !important; border-left: 4px solid #000 !important; margin-bottom: 8px !important; color: #000 !important; font-weight: bold !important; text-decoration: none !important; }
+
+      #historyForm .mb-1, #historyForm .mb-2, #historyForm .mb-3 { margin-bottom: 8px !important; page-break-inside: avoid !important; }
+      #historyForm .mt-1, #historyForm .mt-2, #historyForm .mt-3 { margin-top: 8px !important; }
+      
+      /* จัดระบบ Grid ให้เข้าที่ */
+      #historyForm .row { display: flex !important; flex-wrap: wrap !important; margin: 0 !important; }
+      #historyForm [class*="col-"] { padding-left: 5px !important; padding-right: 5px !important; margin-bottom: 6px !important; }
+      
+      #historyForm .col-md-6 { width: 50% !important; flex: 0 0 50% !important; max-width: 50% !important; }
+      #historyForm .col-md-4 { width: 33.333% !important; flex: 0 0 33.333% !important; max-width: 33.333% !important; }
+      #historyForm .col-md-8 { width: 66.666% !important; flex: 0 0 66.666% !important; max-width: 66.666% !important; }
+      #historyForm .col-md-12 { width: 100% !important; flex: 0 0 100% !important; max-width: 100% !important; }
+
+      #historyForm .form-check-inline { display: inline-block !important; margin-right: 15px !important; margin-bottom: 0 !important; }
+
+      /* 📌 ลิสต์ 12 ข้อ คืนค่าเป็น 1 คอลัมน์ เรียงลงมาตามรูปภาพ อ่านง่าย สบายตา */
+      #historyForm div.text-secondary {
+          display: block !important;
+          color: #000 !important;
+          margin-left: 15px !important;
+      }
+      #historyForm div.text-secondary .form-check {
+          width: 100% !important; 
+          max-width: 100% !important;
+          margin-bottom: 2px !important;
+          padding-right: 0 !important;
+          font-size: 12pt !important;
+          display: block !important; /* ยกเลิก 2 คอลัมน์ กลับมาเป็นบรรทัดเดียวยาวๆ */
+          break-inside: avoid !important;
+          page-break-inside: avoid !important; /* ป้องกันการตัดขาดครึ่งข้อ */
+      }
+      #historyForm div.text-secondary .form-check-input { margin-top: 4px !important; margin-right: 8px !important; }
+
+      #historyForm ul { margin-bottom: 0 !important; padding-left: 20px !important; }
+      #historyForm li { margin-bottom: 2px !important; }
+
+      /* 📌 ลายเซ็นให้อยู่หน้าสุดท้าย (หน้าที่ 2) แบบสวยงาม */
+      #historyForm .signature-box { 
+          text-align: center !important; 
+          margin-top: 20px !important; /* ปรับดึงลายเซ็นขึ้นมาเพื่อไม่ให้ล้นไปหน้าที่ 3 */
+          padding-right: 50px !important; 
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: flex-end !important; /* ผลักไปขวาสุด */
+          page-break-inside: avoid !important; /* ป้องกันกล่องลายเซ็นโดนหั่นครึ่ง */
+      }
+      #historyForm .signature-box .signature-container {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          width: 350px !important;
+      }
+      #historyForm .signature-box h6 { font-size: 13pt !important; margin-bottom: 40px !important; font-weight: bold !important; color: #000 !important; margin-top: 0 !important; }
+      
+      #historyForm input[type="text"] { border: none !important; border-bottom: 1px dotted #000 !important; background: transparent !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; height: 18px !important; font-size: 12pt !important; box-shadow: none !important; color: #000 !important; }
+    }
+
+    .certificate-paper {
+      background: #fff; width: 100%; max-width: 800px; margin: 0 auto; 
+      padding: 50px; box-shadow: 0 0 20px rgba(0,0,0,0.1); border-radius: 8px;
+      font-family: 'Sarabun', serif; font-size: 1.1rem; color: #000;
+    }
+    
+    .form-section { background-color: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .section-title { font-size: 1.1rem; border-left: 4px solid var(--primary-theme); padding-left: 10px; margin-bottom: 20px; color: var(--primary-dark); }
+    .section-title.danger { border-left-color: #ef4444; color: #b91c1c; }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay" class="loading-overlay d-none no-print">
+    <div class="spinner-border text-success mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+    <h6 id="loadingText" class="text-secondary fw-semibold">กำลังโหลด...</h6>
+  </div>
+
+  <header class="top-header no-print">
+    <div class="brand-title"><i class="fa-solid fa-virus"></i><span>ระบบคัดกรองไวรัสตับอักเสบบีและซี รพ.สต.บ้านกุดแฮดสามัคคี</span></div>
+    <div><button class="btn btn-light btn-sm fw-semibold text-success px-3 rounded-pill" onclick="topLoginClick()" id="headerLoginBtn"><i class="fa-solid fa-right-to-bracket me-1"></i> Login</button></div>
+  </header>
+
+  <div id="app-wrapper">
+    <nav id="sidebar" class="no-print">
+      <ul class="nav-list pt-3">
+        <li class="nav-item-custom"><a href="#" id="nav-dashboard" class="nav-link-custom active" onclick="switchPage('dashboard', event)"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+        <li class="nav-item-custom"><a href="#" id="nav-checkHistory" class="nav-link-custom text-primary" onclick="switchPage('checkHistory', event)"><i class="fa-solid fa-magnifying-glass"></i><span>ตรวจสอบประวัติคัดกรอง</span></a></li>
+      </ul>
+
+      <div class="sidebar-section-title">ปฏิบัติงาน (เฉพาะ จนท./อสม.)</div>
+      <ul class="nav-list">
+        <li class="nav-item-custom"><a href="#" id="nav-patients" class="nav-link-custom" onclick="switchPage('patients', event)"><i class="fa-solid fa-user-plus text-primary"></i><span>ลงทะเบียนกลุ่มเสี่ยง</span></a></li>
+        <li class="nav-item-custom"><a href="#" id="nav-importData" class="nav-link-custom" onclick="switchPage('importData', event)"><i class="fa-solid fa-file-import text-success"></i><span>นำเข้าข้อมูลประชากร</span></a></li>
+        <li class="nav-item-custom"><a href="#" id="nav-screening" class="nav-link-custom" onclick="switchPage('screening', event)"><i class="fa-solid fa-file-signature text-info"></i><span>แบบซักประวัติโดยอสม./จนท.</span></a></li>
+        <li class="nav-item-custom"><a href="#" id="nav-labresults" class="nav-link-custom" onclick="switchPage('labresults', event)"><i class="fa-solid fa-vial text-warning"></i><span>บันทึกผลตรวจแล็บ</span></a></li>
+      </ul>
+      
+      <div class="sidebar-section-title">ระบบจัดการ</div>
+      <ul class="nav-list">
+        <li class="nav-item-custom"><a href="#" id="nav-allPatients" class="nav-link-custom" onclick="switchPage('allPatients', event)"><i class="fa-solid fa-users text-secondary"></i><span>รายชื่อประชากร</span></a></li>
+        <li class="nav-item-custom"><a href="#" id="nav-followup" class="nav-link-custom" onclick="switchPage('followup', event)"><i class="fa-solid fa-user-clock text-warning"></i><span>ติดตามผลผิดปกติ</span></a></li>
+        <li class="nav-item-custom"><a href="#" id="nav-certificate" class="nav-link-custom" onclick="switchPage('certificate', event)"><i class="fa-solid fa-file-medical text-danger"></i><span>ออกใบรับรอง</span></a></li>
+      </ul>
+    </nav>
+
+    <main id="main-content"><div id="dynamicBody"></div></main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyuMIrktTVK3y2BEUsHc_lXblU-0sqKC90WE7wLZj8aZOf51m3emK35PxJV7xl8LSqUGw/exec';
+    let appSessionToken = sessionStorage.getItem('appSessionToken') || 'PUBLIC_ACCESS';
+    let userRole = sessionStorage.getItem('appUserRole') || ''; 
+    let chartInstances = [];
+    let isAdminLoggedIn = false;
+    let currentAdminUser = null;
+    let appCache = { dashboard: null, patients: null, lastFetchDashboard: 0, lastFetchPatients: 0 };
+    const DEFAULT_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Ministry_of_Public_Health_of_Thailand_Logo.svg/1024px-Ministry_of_Public_Health_of_Thailand_Logo.svg.png";
+    let customLogoDataUrl = localStorage.getItem('savedHospitalLogo') || DEFAULT_LOGO_URL;
+
+    document.addEventListener('DOMContentLoaded', () => { 
+        if (sessionStorage.getItem('appSessionToken')) {
+            isAdminLoggedIn = true;
+            userRole = sessionStorage.getItem('appUserRole') || 'ADMIN';
+            const btn = document.getElementById('headerLoginBtn');
+            if (btn) {
+              const roleName = userRole === 'VHV' ? 'อสม.' : 'เจ้าหน้าที่';
+              btn.innerHTML = `<i class="fa-solid fa-user-check me-1"></i> ${roleName} (Logout)`;
+              btn.className = 'btn btn-light btn-sm fw-semibold text-danger px-3 rounded-pill';
+            }
+        }
+        updateSidebarVisibility();
+        switchPage('dashboard'); 
+    });
+
+    function updateSidebarVisibility() {
+        const adminOnlyNavs = ['nav-importData', 'nav-labresults', 'nav-allPatients', 'nav-followup', 'nav-certificate'];
+        adminOnlyNavs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.parentElement) {
+                el.parentElement.style.display = (userRole === 'VHV') ? 'none' : 'block';
+            }
+        });
+    }
+
+    function showLoading(text = 'กำลังประมวลผล...') { document.getElementById('loadingText').innerText = text; document.getElementById('loadingOverlay').classList.remove('d-none'); }
+    function hideLoading() { document.getElementById('loadingOverlay').classList.add('d-none'); }
+
+    // ==========================================
+    // 🚀 ฟังก์ชันช่วยแปลงวันที่จากรูปแบบ ISO ให้เป็น วว/ดด/ปปปป (แบบชดเชย +7 Timezone)
+    // ==========================================
+    function formatDisplayDate(val) {
+        if (!val) return '';
+        let str = String(val).trim();
+        
+        if (str.match(/^\d{4}-\d{2}-\d{2}T/)) {
+            let d = new Date(str);
+            if (!isNaN(d.getTime())) {
+                d.setHours(d.getHours() + 7);
+                let day = String(d.getDate()).padStart(2, '0');
+                let month = String(d.getMonth() + 1).padStart(2, '0');
+                let year = d.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+        }
+        
+        if (str.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            let parts = str.split('-');
+            if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        
+        return str;
+    }
+
+    function callServer(action, payload = {}, retries = 2) {
+      return new Promise((resolve) => {
+        const attempt = (currentRetry) => {
+          fetch(GAS_WEB_APP_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: action, token: appSessionToken, payload: payload })
+          })
+          .then(async response => {
+            const text = await response.text();
+            try {
+              const data = JSON.parse(text);
+              if (data && data.message && data.message.includes('401:')) {
+                  isAdminLoggedIn = false;
+                  currentAdminUser = null;
+                  userRole = '';
+                  sessionStorage.removeItem('appSessionToken');
+                  sessionStorage.removeItem('appUserRole');
+                  appSessionToken = 'PUBLIC_ACCESS';
+                  const btn = document.getElementById('headerLoginBtn');
+                  if (btn) {
+                      btn.innerHTML = `<i class="fa-solid fa-right-to-bracket me-1"></i> Login`;
+                      btn.className = 'btn btn-light btn-sm fw-semibold text-success px-3 rounded-pill';
+                  }
+                  updateSidebarVisibility();
+                  Swal.fire('ปฏิเสธการเข้าถึง', 'เซสชันหมดอายุ หรือคุณไม่ได้รับอนุญาตให้ใช้เมนูนี้ กรุณา Login ใหม่', 'error').then(() => {
+                      switchPage('dashboard');
+                  });
+                  resolve({ success: false, message: 'Unauthorized' });
+                  return;
+              }
+              resolve(data);
+            } catch (e) {
+              if (currentRetry > 0) setTimeout(() => attempt(currentRetry - 1), 1000);
+              else {
+                Swal.fire('ข้อผิดพลาดการเชื่อมต่อ', 'เซิร์ฟเวอร์ของ Google ตอบกลับผิดปกติ กรุณาลองใหม่อีกครั้ง', 'error');
+                resolve({ success: false, message: 'Parse Error' });
+              }
+            }
+          })
+          .catch(err => {
+            if (currentRetry > 0) setTimeout(() => attempt(currentRetry - 1), 1000);
+            else resolve({ success: false, message: 'เครือข่ายขัดข้อง: ' + err.message });
+          });
+        };
+        attempt(retries); 
+      });
+    }
+
+    function switchPage(page, evt) {
+      const publicPages = ['dashboard', 'checkHistory']; 
+      const vhvPages = ['dashboard', 'checkHistory', 'patients', 'screening'];
+
+      if (!publicPages.includes(page)) {
+         if (!isAdminLoggedIn) {
+             Swal.fire({
+                 icon: 'warning',
+                 title: 'จำกัดสิทธิ์การเข้าถึง',
+                 text: 'กรุณา Login ที่ปุ่มมุมขวาบนก่อนเข้าใช้งานฟังก์ชันนี้',
+                 confirmButtonColor: '#0f766e'
+             });
+             if (document.getElementById('dynamicBody').innerHTML === '') switchPage('dashboard');
+             return;
+         }
+         
+         if (userRole === 'VHV' && !vhvPages.includes(page)) {
+             Swal.fire({
+                 icon: 'error',
+                 title: 'ไม่มีสิทธิ์เข้าถึง',
+                 text: 'บัญชี อสม. ไม่สามารถใช้งานเมนูนี้ได้',
+                 confirmButtonColor: '#d33'
+             });
+             return;
+         }
+      }
+
+      document.querySelectorAll('#sidebar .nav-link-custom').forEach(el => el.classList.remove('active'));
+      const activeNav = document.getElementById('nav-' + page);
+      if(activeNav) activeNav.classList.add('active');
+      else if(evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+
+      const body = document.getElementById('dynamicBody');
+      if(!body) return;
+
+      chartInstances.forEach(chart => chart.destroy()); 
+      chartInstances = [];
+
+      switch(page) {
+        case 'dashboard': renderDashboard(body); break;
+        case 'checkHistory': renderCheckHistory(body); break;
+        case 'importData': renderImportData(body); break;
+        case 'patients': renderPatientsForm(body); break;
+        case 'screening': renderScreeningForm(body); break;
+        case 'labresults': renderLabResultsForm(body); break;
+        case 'allPatients': renderAllPatientsList(body); break;
+        case 'followup': renderFollowUp(body); break;
+        case 'certificate': renderCertificate(body); break;
+        default: body.innerHTML = `<h4>ไม่พบหน้าที่ต้องการ</h4>`;
+      }
+    }
+
+    // ==========================================
+    // 🚀 ฟังก์ชันตรวจสอบประวัติคัดกรองสาธารณะ
+    // ==========================================
+    function renderCheckHistory(container) {
+      container.innerHTML = `
+        <div class="card-3d p-5 text-center mb-4">
+          <i class="fa-solid fa-magnifying-glass-chart fa-4x text-primary mb-4"></i>
+          <h3 class="fw-bold mb-3 text-primary">ตรวจสอบประวัติการคัดกรอง</h3>
+          <p class="text-muted mb-5">กรุณากรอกเลขบัตรประจำตัวประชาชน 13 หลัก เพื่อตรวจสอบว่าท่านเคยเข้ารับการคัดกรองไวรัสตับอักเสบบีและซีแล้วหรือไม่</p>
+          
+          <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+              <div class="input-group input-group-lg shadow-sm mb-3">
+                <span class="input-group-text bg-white"><i class="fa-regular fa-id-card text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" id="searchCidPublic" placeholder="เลขบัตรประชาชน 13 หลัก..." maxlength="13">
+                <button class="btn btn-primary px-4 fw-semibold" onclick="checkPublicHistory()">
+                  ตรวจสอบ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function checkPublicHistory() {
+      const cid = document.getElementById('searchCidPublic').value.trim();
+      if(cid.length !== 13) {
+        return Swal.fire('แจ้งเตือน', 'กรุณาระบุเลขบัตรประจำตัวประชาชนให้ครบ 13 หลัก', 'warning');
+      }
+
+      showLoading('กำลังตรวจสอบข้อมูลจากระบบ...');
+      callServer('checkExistingScreening', { CitizenID: cid }).then(res => {
+        hideLoading();
+        if(res.success && res.found) {
+          const screeningDate = String(res.data.ScreeningDate || '').trim();
+          const labB = String(res.data.LabtestHepB || '').trim();
+          const labC = String(res.data.LabtestHepC || '').trim();
+          
+          const hasScreened = labB.match(/positive|negative|บวก|ลบ/i) || 
+                              labC.match(/positive|negative|บวก|ลบ/i) ||
+                              (screeningDate !== '') || 
+                              res.hasScreening;
+
+          if(hasScreened) {
+            const dateStr = formatDisplayDate(screeningDate) || 'ที่ผ่านมา';
+            Swal.fire({
+              icon: 'success',
+              title: 'ตรวจพบประวัติ',
+              html: `ท่านเคยตรวจคัดกรองแล้วเมื่อวันที่ <br><b class="fs-4 text-success">${dateStr}</b>`,
+              confirmButtonColor: '#0f766e',
+              confirmButtonText: 'ตกลง'
+            }).then(() => {
+                document.getElementById('searchCidPublic').value = '';
+            });
+          } else {
+             Swal.fire({
+              icon: 'warning',
+              title: 'ไม่พบประวัติการตรวจคัดกรอง',
+              text: 'ไม่พบประวัติการตรวจคัดกรองให้ติดต่อเจ้าหน้าที่/อสม.ในพื้นที่รับผิดชอบ',
+              confirmButtonColor: '#f59e0b',
+              confirmButtonText: 'ตกลง'
+            }).then(() => {
+                document.getElementById('searchCidPublic').value = '';
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'ไม่พบประวัติการตรวจคัดกรอง',
+            text: 'ไม่พบประวัติการตรวจคัดกรองให้ติดต่อเจ้าหน้าที่/อสม.ในพื้นที่รับผิดชอบ',
+            confirmButtonColor: '#f59e0b',
+            confirmButtonText: 'ตกลง'
+          }).then(() => {
+              document.getElementById('searchCidPublic').value = '';
+          });
+        }
+      });
+    }
+
+    function renderDashboard(container, forceRefresh = false) {
+      if (forceRefresh) {
+        appCache.lastFetchDashboard = 0; 
+      }
+      
+      if (!forceRefresh && appCache.dashboard && (Date.now() - appCache.lastFetchDashboard < 300000)) {
+        buildDashboardUI(container, appCache.dashboard);
+        return;
+      }
+
+      showLoading('ดึงข้อมูล Dashboard และสถานะติดตาม...');
+      
+      let dashPromise = callServer('getDashboardData', { forceRefresh: forceRefresh });
+      let fuPromise = callServer('getFollowUpAbnormal', { forceRefresh: forceRefresh });
+
+      Promise.all([
+        dashPromise, 
+        fuPromise
+      ]).then(([dashRes, fuRes]) => {
+        hideLoading();
+        const d = dashRes.success && dashRes.data ? dashRes.data : { totalPatients: 0, totalScreened: 0, hbvAbnormal: 0, hcvAbnormal: 0, monthlyStats: [0,0,0,0,0,0,0,0,0,0,0,0], ageStats: [0,0,0,0,0] };
+        
+        let fuStats = { 'รอดำเนินการ': 0, 'ดำเนินการ/รักษา': 0, 'เสร็จสิ้น': 0, 'ยุติ/ติดต่อไม่ได้': 0 };
+        if (fuRes.success && fuRes.data && fuRes.data.length > 0) {
+            fuRes.data.forEach(p => {
+                let status = String(p.CurrentStatus || 'รอดำเนินการ');
+                if (status === 'รอดำเนินการ' || status === 'รับทราบผล/รอส่งต่อ') {
+                    fuStats['รอดำเนินการ']++;
+                } else if (status === 'ส่งต่อโรงพยาบาล' || status === 'อยู่ระหว่างการรักษา' || status === 'นัดเจาะเลือดซ้ำ') {
+                    fuStats['ดำเนินการ/รักษา']++;
+                } else if (status === 'รักษาเสร็จสิ้น/ปกติ') {
+                    fuStats['เสร็จสิ้น']++;
+                } else {
+                    fuStats['ยุติ/ติดต่อไม่ได้']++;
+                }
+            });
+        }
+        d.followUpStats = fuStats;
+        
+        appCache.dashboard = d;
+        appCache.lastFetchDashboard = Date.now();
+        
+        buildDashboardUI(container, d);
+      });
+    }
+
+    function buildDashboardUI(container, d) {
+        container.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="dashboard-header mb-0">ภาพรวมระบบคัดกรอง รพ.สต.บ้านกุดแฮดสามัคคี</h3>
+            <div>
+              <button class="btn btn-sm btn-outline-primary rounded-pill me-2 shadow-sm fw-semibold" onclick="renderDashboard(document.getElementById('dynamicBody'), true)"><i class="fa-solid fa-rotate me-1"></i> อัปเดตข้อมูล</button>
+              <span class="badge bg-white text-success shadow-sm border px-3 py-2 rounded-pill"><i class="fa-solid fa-circle-check me-1"></i> เชื่อมต่อฐานข้อมูลสำเร็จ</span>
+            </div>
+          </div>
+          
+          <div class="row g-4 mb-5">
+            <div class="col-xl-3 col-lg-6">
+              <div class="card-3d p-4 d-flex align-items-center">
+                <div class="icon-3d-wrapper bg-gradient-primary me-4"><i class="fa-solid fa-users"></i></div>
+                <div><div class="metric-label-3d">ประชากรในระบบ</div><div class="metric-value-3d text-primary">${d.totalPatients}</div></div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+              <div class="card-3d p-4 d-flex align-items-center">
+                <div class="icon-3d-wrapper bg-gradient-success me-4"><i class="fa-solid fa-stethoscope"></i></div>
+                <div><div class="metric-label-3d">คัดกรองแล้ว</div><div class="metric-value-3d text-success">${d.totalScreened}</div></div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+              <div class="card-3d p-4 d-flex align-items-center">
+                <div class="icon-3d-wrapper bg-gradient-warning me-4"><i class="fa-solid fa-virus"></i></div>
+                <div><div class="metric-label-3d">HBV Positive (+)</div><div class="metric-value-3d text-warning">${d.hbvAbnormal}</div></div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+              <div class="card-3d p-4 d-flex align-items-center">
+                <div class="icon-3d-wrapper bg-gradient-danger me-4"><i class="fa-solid fa-vial-virus"></i></div>
+                <div><div class="metric-label-3d">HCV Positive (+)</div><div class="metric-value-3d text-danger">${d.hcvAbnormal}</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+              <div class="card-3d p-4 h-100">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-chart-column text-primary me-2"></i> สถานะการติดตามผลผิดปกติ</h5>
+                <div class="chart-container-3d"><canvas id="followUpChart"></canvas></div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card-3d p-4 h-100 d-flex flex-column">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-chart-pie text-success me-2"></i> สัดส่วนผลผิดปกติ</h5>
+                <div class="chart-container-3d flex-grow-1 d-flex align-items-center justify-content-center"><canvas id="donutChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row g-4">
+            <div class="col-lg-12">
+              <div class="card-3d p-4 h-100">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-chart-gantt text-info me-2"></i> ช่วงอายุของผู้ที่ได้รับการคัดกรอง (Demographics)</h5>
+                <div class="chart-container-3d" style="height: 320px;"><canvas id="ageChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+        `;
+        initAdvancedCharts(d);
+    }
+
+    function initAdvancedCharts(data) {
+      Chart.defaults.font.family = "'Prompt', sans-serif";
+      
+      const fuCtx = document.getElementById('followUpChart').getContext('2d');
+      const fuData = data.followUpStats || { 'รอดำเนินการ': 0, 'ดำเนินการ/รักษา': 0, 'เสร็จสิ้น': 0, 'ยุติ/ติดต่อไม่ได้': 0 };
+      const followUpChart = new Chart(fuCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(fuData),
+          datasets: [{ 
+            label: 'จำนวน (ราย)', 
+            data: Object.values(fuData), 
+            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'], 
+            borderRadius: 12 
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+
+      const donutCtx = document.getElementById('donutChart').getContext('2d');
+      const normalCount = Math.max(0, data.totalScreened - data.hbvAbnormal - data.hcvAbnormal);
+      
+      const donutChart = new Chart(donutCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ปกติ', 'HBV (+)', 'HCV (+)'],
+          datasets: [{ 
+            data: [normalCount, data.hbvAbnormal, data.hcvAbnormal], 
+            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], 
+            borderWidth: 4, hoverOffset: 15 
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
+      });
+      
+      const ageCtx = document.getElementById('ageChart').getContext('2d');
+      const ageChart = new Chart(ageCtx, {
+        type: 'bar',
+        data: {
+          labels: ['ต่ำกว่า 30 ปี', '30 - 39 ปี', '40 - 49 ปี', '50 - 59 ปี', '60 ปีขึ้นไป'],
+          datasets: [{ 
+            label: 'จำนวนผู้คัดกรอง (ราย)', 
+            data: data.ageStats || [0,0,0,0,0], 
+            backgroundColor: [
+              'rgba(14, 165, 233, 0.7)', 
+              'rgba(2, 132, 199, 0.75)', 
+              'rgba(3, 105, 161, 0.8)', 
+              'rgba(7, 89, 133, 0.85)',
+              'rgba(15, 23, 42, 0.9)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          indexAxis: 'y', 
+          plugins: { legend: { display: false } },
+          scales: { 
+            x: { beginAtZero: true, ticks: { precision: 0 } },
+            y: { grid: { display: false }, ticks: { font: { size: 13, weight: '500' } } }
+          }
+        }
+      });
+      
+      chartInstances.push(followUpChart, donutChart, ageChart);
+    }
+
+    function renderImportData(container) {
+      container.innerHTML = `
+        <div class="card-3d p-5 text-center">
+          <h3 class="fw-bold text-success"><i class="fa-solid fa-file-import me-2"></i> นำเข้าและอัปเดตฐานข้อมูลด้วย Excel</h3>
+          <p class="text-muted">ระบบจะเปรียบเทียบข้อมูล หากพบประชากรใหม่จะเพิ่มให้ และหากพบผลตรวจใหม่ของประชากรเดิมจะอัปเดตเติมเต็มให้ทันที</p>
+          <div class="p-5 border border-dashed rounded mt-4" style="background:#f8fafc; border-color: #cbd5e1; cursor:pointer;" onclick="document.getElementById('excelFileInput').click()">
+            <i class="fa-solid fa-cloud-arrow-up fa-3x text-secondary mb-3"></i>
+            <h5 class="fw-semibold">คลิกเพื่อเลือกไฟล์ Excel หรือ CSV</h5>
+          </div>
+          <input type="file" id="excelFileInput" class="d-none" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(event)">
+        </div>`;
+    }
+
+    function handleExcelUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      showLoading('กำลังอ่านไฟล์ Excel ทั้งหมด...');
+      const reader = new FileReader();
+      
+      reader.onload = async function(e) {
+        try {
+          const data = e.target.result;
+          const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonRecords = XLSX.utils.sheet_to_json(firstSheet, { raw: false, defval: "" });
+          
+          if (jsonRecords.length === 0) { 
+            hideLoading(); 
+            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลในไฟล์', 'error'); 
+            document.getElementById('excelFileInput').value = ''; 
+            return; 
+          }
+          
+          hideLoading();
+          let textMsg = `ตรวจพบข้อมูลทั้งหมด ${jsonRecords.length} แถว\n\nระบบจะทำการประมวลผลเพิ่มคนใหม่และเติมเต็มผลตรวจให้กับคนเดิมโดยอัตโนมัติ ยืนยันการอัปเดตหรือไม่?`;
+          
+          Swal.fire({ 
+            title: `พร้อมดำเนินการ`, 
+            text: textMsg, 
+            icon: 'question', showCancelButton: true,
+            confirmButtonText: 'ยืนยันการนำเข้า', cancelButtonText: 'ยกเลิก'
+          }).then((result) => {
+            if (result.isConfirmed) {
+               uploadToGAS(jsonRecords);
+            } else {
+               document.getElementById('excelFileInput').value = ''; 
+            }
+          });
+        } catch (error) { 
+          hideLoading(); 
+          Swal.fire('Error', error.message, 'error'); 
+          document.getElementById('excelFileInput').value = ''; 
+        }
+      };
+      reader.readAsBinaryString(file);
+    }
+
+    function uploadToGAS(recordsArray) {
+      if (!recordsArray || recordsArray.length === 0) return;
+      showLoading(`กำลังประมวลผลข้อมูล ${recordsArray.length} รายการลงฐานข้อมูล...`);
+      
+      const payloadData = { records: recordsArray };
+      
+      callServer('apiImportPopulationData', payloadData).then(res => {
+        hideLoading();
+        document.getElementById('excelFileInput').value = ''; 
+        if (res.success) { 
+          Swal.fire('สำเร็จ!', res.message || 'นำเข้าข้อมูลเรียบร้อย', 'success').then(() => {
+             appCache.lastFetchPatients = 0; 
+             switchPage('dashboard');
+          }); 
+        } else { 
+          Swal.fire('ผิดพลาด', res.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error'); 
+        }
+      });
+    }
+
+    function renderPatientsForm(container) {
+      container.innerHTML = `
+        <div class="card-3d p-4 mb-4">
+          <h4 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-user-plus me-2"></i>ลงทะเบียนกลุ่มเสี่ยง / ตรวจสอบประวัติ</h4>
+          <form id="patientRegForm" onsubmit="submitPatient(event)">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">เลขบัตรประชาชน (13 หลัก)*</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="CitizenID" maxlength="13" required onblur="checkPatientHistory()">
+                  <button class="btn btn-outline-primary" type="button" onclick="checkPatientHistory()">ค้นหา</button>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label fw-semibold">คำนำหน้า</label>
+                <select class="form-select" id="Prefix"><option>นาย</option><option>นาง</option><option>นางสาว</option></select>
+              </div>
+              <div class="col-md-3"><label class="form-label fw-semibold">ชื่อ*</label><input type="text" class="form-control" id="FirstName" required></div>
+              <div class="col-md-3"><label class="form-label fw-semibold">นามสกุล*</label><input type="text" class="form-control" id="LastName" required></div>
+              
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">วัน/เดือน/ปีเกิด (พ.ศ.)</label>
+                <input type="text" class="form-control" id="DateofBirth" placeholder="เช่น 01/01/2530" onchange="calculateAge()">
+              </div>
+              <div class="col-md-2"><label class="form-label fw-semibold">อายุ (ปี)</label><input type="number" class="form-control" id="Age" readonly></div>
+              <div class="col-md-3"><label class="form-label fw-semibold">เบอร์โทรศัพท์</label><input type="text" class="form-control" id="Phone" maxlength="10"></div>
+              
+              <div class="col-md-2"><label class="form-label fw-semibold">บ้านเลขที่</label><input type="text" class="form-control" id="Address"></div>
+              <div class="col-md-2"><label class="form-label fw-semibold">หมู่ที่</label><input type="text" class="form-control" id="Moo"></div>
+              
+              <div class="col-md-4"><label class="form-label fw-semibold">ตำบล</label><input type="text" class="form-control" id="SubDistrict" value="กุดบาก"></div>
+              <div class="col-md-4"><label class="form-label fw-semibold">อำเภอ</label><input type="text" class="form-control" id="District" value="กุดบาก"></div>
+              <div class="col-md-4"><label class="form-label fw-semibold">จังหวัด</label><input type="text" class="form-control" id="Province" value="สกลนคร"></div>
+
+              <div class="col-md-2"><label class="form-label fw-semibold">น้ำหนัก (กก.)</label><input type="number" step="0.1" class="form-control" id="weight"></div>
+              <div class="col-md-2"><label class="form-label fw-semibold">ส่วนสูง (ซม.)</label><input type="number" step="0.1" class="form-control" id="height"></div>
+              <div class="col-md-4"><label class="form-label fw-semibold">ความดันโลหิต</label><input type="text" class="form-control" id="Bloodpressure" placeholder="เช่น 120/80"></div>
+              
+              <div class="col-md-12 mt-3">
+                <label class="form-label fw-semibold">ความประสงค์รับบริการ</label>
+                <select class="form-select" id="Request">
+                  <option value="ต้องการตรวจคัดกรองไวรัสตับอักเสบบีและซี">ต้องการตรวจคัดกรองไวรัสตับอักเสบบีและซี</option>
+                  <option value="มาติดตามผลเลือดผิดปกติ">มาติดตามผลเลือดผิดปกติ</option>
+                  <option value="ขอใบรับรองผลการตรวจ">ขอใบรับรองผลการตรวจ</option>
+                  <option value="อื่นๆ">อื่นๆ</option>
+                </select>
+              </div>
+              
+              <div class="col-12 mt-4"><button type="submit" class="btn btn-primary px-4 fw-semibold btn-lg rounded-pill shadow-sm"><i class="fa-solid fa-save me-2"></i>บันทึกข้อมูล</button></div>
+            </div>
+          </form>
+        </div>
+      `;
+    }
+
+    function calculateAge() {
+      const dob = document.getElementById('DateofBirth').value;
+      if(!dob) return;
+      const parts = dob.split('/');
+      if(parts.length === 3) {
+        const birthYear = parseInt(parts[2]);
+        const currentYear = new Date().getFullYear() + 543;
+        if(birthYear > 2400 && birthYear <= currentYear) {
+          document.getElementById('Age').value = currentYear - birthYear;
+        }
+      }
+    }
+
+    function checkPatientHistory() {
+      const cid = document.getElementById('CitizenID').value.trim();
+      if(cid.length !== 13) return;
+      
+      showLoading('กำลังตรวจสอบประวัติจากระบบ...');
+      callServer('checkExistingScreening', { CitizenID: cid }).then(res => {
+        hideLoading();
+        if(res.success && res.found) {
+          document.getElementById('Prefix').value = res.data.Prefix || 'นาย';
+          document.getElementById('FirstName').value = res.data.FirstName || '';
+          document.getElementById('LastName').value = res.data.LastName || '';
+          
+          // 🚀 ใช้ฟังก์ชันแปลงวันที่ ก่อนนำไปแสดงผล
+          document.getElementById('DateofBirth').value = formatDisplayDate(res.data.DateofBirth);
+          
+          document.getElementById('Age').value = res.data.Age || '';
+          document.getElementById('Phone').value = res.data.Phone || '';
+          document.getElementById('Address').value = res.data.Address || '';
+          document.getElementById('Moo').value = res.data.Moo || '';
+          document.getElementById('SubDistrict').value = res.data.SubDistrict || 'กุดบาก';
+          document.getElementById('District').value = res.data.District || 'กุดบาก';
+          document.getElementById('Province').value = res.data.Province || 'สกลนคร';
+          document.getElementById('weight').value = res.data.weight || '';
+          document.getElementById('height').value = res.data.height || '';
+          document.getElementById('Bloodpressure').value = res.data.Bloodpressure || '';
+          if(res.data.Request) document.getElementById('Request').value = res.data.Request;
+
+          const screeningDate = String(res.data.ScreeningDate || '').trim();
+          const labB = String(res.data.LabtestHepB || '').trim();
+          const labC = String(res.data.LabtestHepC || '').trim();
+          
+          const hasScreened = labB.match(/positive|negative|บวก|ลบ/i) || 
+                              labC.match(/positive|negative|บวก|ลบ/i) ||
+                              (screeningDate !== '') || 
+                              res.hasScreening;
+
+          if (hasScreened) {
+            const dateStr = formatDisplayDate(screeningDate) || 'ที่ผ่านมา';
+            Swal.fire({
+              icon: 'error',
+              title: 'เคยตรวจคัดกรองแล้ว',
+              html: `ผู้รับบริการรายนี้เคยตรวจคัดกรองแล้วเมื่อวันที่ <b>${dateStr}</b><br><br><span class="text-danger">ดึงข้อมูลขึ้นมาแก้ไขได้ แต่ไม่ต้องลงทะเบียนซ้ำ</span>`,
+              confirmButtonColor: '#d33'
+            });
+          } else {
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ดึงข้อมูลสำเร็จ (ยังไม่เคยคัดกรอง)', showConfirmButton: false, timer: 2500 });
+          }
+        } else {
+          Swal.fire({
+            icon: 'info',
+            title: 'ไม่พบประวัติ',
+            text: 'ไม่พบประวัติในระบบ โปรดลงทะเบียนใหม่',
+            confirmButtonColor: '#0f766e'
+          }).then(() => {
+            document.getElementById('patientRegForm').reset();
+            document.getElementById('CitizenID').value = cid;
+            document.getElementById('SubDistrict').value = 'กุดบาก';
+            document.getElementById('District').value = 'กุดบาก';
+            document.getElementById('Province').value = 'สกลนคร';
+          });
+        }
+      });
+    }
+
+    function submitPatient(e) {
+      e.preventDefault();
+      const payload = { 
+        CitizenID: document.getElementById('CitizenID').value, Prefix: document.getElementById('Prefix').value, 
+        FirstName: document.getElementById('FirstName').value, LastName: document.getElementById('LastName').value, 
+        DateofBirth: document.getElementById('DateofBirth').value, Age: document.getElementById('Age').value, Phone: document.getElementById('Phone').value,
+        Address: document.getElementById('Address').value, Moo: document.getElementById('Moo').value, SubDistrict: document.getElementById('SubDistrict').value,
+        District: document.getElementById('District').value, Province: document.getElementById('Province').value, weight: document.getElementById('weight').value,
+        height: document.getElementById('height').value, Bloodpressure: document.getElementById('Bloodpressure').value, Request: document.getElementById('Request').value
+      };
+      showLoading('กำลังบันทึก...');
+      callServer('createPatient', payload).then(res => {
+        hideLoading();
+        appCache.lastFetchPatients = 0; 
+        if(res.success) { Swal.fire('สำเร็จ', res.message || 'บันทึกสำเร็จ', 'success'); }
+      });
+    }
+
+    function renderLabResultsForm(container) {
+      container.innerHTML = `
+        <div class="card-3d p-4 mb-4">
+          <h4 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-vial me-2"></i>บันทึกผลตรวจแล็บไวรัสตับอักเสบบีและซี</h4>
+          <p class="text-muted">ค้นหาประชากรด้วยเลขบัตรประชาชน 13 หลักเพื่อบันทึกผลแล็บลงตาราง Patients</p>
+          <div class="row g-2 mb-4">
+            <div class="col-md-9"><input type="text" class="form-control form-control-lg" id="searchCidLab" placeholder="ระบุเลขบัตรประชาชน 13 หลัก..." maxlength="13"></div>
+            <div class="col-md-3"><button class="btn btn-warning btn-lg w-100 fw-semibold text-dark" onclick="searchForLabRecord()"><i class="fa-solid fa-search me-2"></i>ค้นหาประวัติ</button></div>
+          </div>
+        </div>
+
+        <div class="card-3d p-4 d-none" id="labRecordCard">
+          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-user-check me-2"></i>ข้อมูลผู้รับบริการ</h5>
+          <div class="p-3 bg-light rounded mb-4 border">
+            <div class="row g-2">
+              <div class="col-md-6">ชื่อ - สกุล: <span id="lab_fullname" class="fw-bold text-dark">-</span></div>
+              <div class="col-md-6">เลขบัตรประชาชน: <span id="lab_cid_disp" class="fw-bold text-dark">-</span></div>
+              <div class="col-md-6">อายุ: <span id="lab_age">-</span> ปี</div>
+              <div class="col-md-6">เบอร์โทรศัพท์: <span id="lab_phone">-</span></div>
+            </div>
+          </div>
+
+          <form onsubmit="submitLabResult(event)">
+            <input type="hidden" id="lab_CitizenID">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-flask me-2"></i>ผลการตรวจทางห้องปฏิบัติการ (Rapid Test)</h5>
+            
+            <div class="row g-4 mb-4">
+              <div class="col-md-12">
+                <div class="p-3 border rounded bg-white shadow-sm">
+                  <label class="form-label fw-bold text-dark">วันที่ตรวจ / วันที่บันทึกผล (ปี พ.ศ.)</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-regular fa-calendar-days text-primary"></i></span>
+                    <input type="text" class="form-control form-control-lg bg-white" id="LabtestDate" placeholder="คลิกเพื่อเลือกวันที่..." readonly style="cursor: pointer;" required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 border rounded bg-white shadow-sm">
+                  <label class="form-label fw-bold text-primary">1. ไวรัสตับอักเสบ บี (HBsAg)</label>
+                  <select class="form-select form-select-lg mt-2" id="LabtestHepB" required>
+                    <option value="">-- เลือกผลการตรวจ --</option>
+                    <option value="Negative">Negative (ผลลบ / ปกติ)</option>
+                    <option value="Positive">Positive (ผลบวก / ผิดปกติ)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 border rounded bg-white shadow-sm">
+                  <label class="form-label fw-bold text-danger">2. ไวรัสตับอักเสบ ซี (Anti-HCV)</label>
+                  <select class="form-select form-select-lg mt-2" id="LabtestHepC" required>
+                    <option value="">-- เลือกผลการตรวจ --</option>
+                    <option value="Negative">Negative (ผลลบ / ปกติ)</option>
+                    <option value="Positive">Positive (ผลบวก / ผิดปกติ)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill fw-semibold shadow"><i class="fa-solid fa-save me-2"></i>บันทึกผลแล็บลง Google Sheets</button>
+            </div>
+          </form>
+        </div>
+      `;
+    }
+
+    function searchForLabRecord() {
+      const cid = document.getElementById('searchCidLab').value.trim();
+      if(cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณาระบุเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
+
+      showLoading('กำลังค้นหาข้อมูล...');
+      callServer('checkExistingScreening', { CitizenID: cid }).then(res => {
+        hideLoading();
+        if(res.success && res.found) {
+          document.getElementById('labRecordCard').classList.remove('d-none');
+          document.getElementById('lab_CitizenID').value = cid;
+          document.getElementById('lab_fullname').innerText = (res.data.Prefix||'') + (res.data.FirstName||'') + ' ' + (res.data.LastName||'');
+          document.getElementById('lab_cid_disp').innerText = cid;
+          document.getElementById('lab_age').innerText = res.data.Age || '-';
+          document.getElementById('lab_phone').innerText = res.data.Phone || '-';
+
+          setTimeout(() => {
+              flatpickr("#LabtestDate", {
+                  locale: "th",
+                  dateFormat: "d/m/Y",
+                  defaultDate: new Date(),
+                  allowInput: false,
+                  formatDate: function (date, format, locale) {
+                      const d = String(date.getDate()).padStart(2, '0');
+                      const m = String(date.getMonth() + 1).padStart(2, '0');
+                      const y = date.getFullYear() + 543;
+                      return `${d}/${m}/${y}`;
+                  },
+                  parseDate: function (datestr, format) {
+                      const parts = datestr.split('/');
+                      if(parts.length === 3) {
+                          return new Date(parts[2] - 543, parts[1] - 1, parts[0]);
+                      }
+                      return new Date();
+                  }
+              });
+          }, 100);
+
+          if(res.data.LabtestHepB) document.getElementById('LabtestHepB').value = res.data.LabtestHepB;
+          if(res.data.LabtestHepC) document.getElementById('LabtestHepC').value = res.data.LabtestHepC;
+
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'พบข้อมูลผู้รับบริการ', showConfirmButton: false, timer: 1500 });
+        } else {
+          document.getElementById('labRecordCard').classList.add('d-none');
+          Swal.fire('ไม่พบข้อมูล', 'ไม่พบเลขบัตรประชาชนนี้ในฐานข้อมูลประชากร กรุณาลงทะเบียนก่อน', 'error');
+        }
+      });
+    }
+
+    function submitLabResult(e) {
+      e.preventDefault();
+      const payload = {
+        CitizenID: document.getElementById('lab_CitizenID').value,
+        LabtestDate: document.getElementById('LabtestDate').value,
+        LabtestHepB: document.getElementById('LabtestHepB').value,
+        LabtestHepC: document.getElementById('LabtestHepC').value
+      };
+
+      showLoading('กำลังบันทึกผลแล็บ...');
+      callServer('apiSaveLabResult', payload).then(res => {
+        hideLoading();
+        appCache.lastFetchPatients = 0; 
+        if(res.success) {
+          Swal.fire('สำเร็จ!', res.message, 'success').then(() => switchPage('labresults'));
+        } else {
+          Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
+        }
+      });
+    }
+
+    function renderScreeningForm(container) {
+      container.innerHTML = `
+        <div class="card-3d p-4 mb-4 no-print">
+          <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-file-signature me-2"></i>แบบฟอร์มการตรวจคัดกรองโรคติดเชื้อไวรัสตับอักเสบบีและซี</h4>
+          <p class="text-muted">ค้นหาประชากรด้วยเลขบัตรประชาชน 13 หลัก</p>
+          <div class="row g-2">
+            <div class="col-md-9"><input type="text" class="form-control form-control-lg" id="searchCidScreening" placeholder="ระบุเลขบัตรประชาชน..." maxlength="13"></div>
+            <div class="col-md-3"><button class="btn btn-info btn-lg w-100 fw-semibold text-white" onclick="searchForScreening()"><i class="fa-solid fa-search me-2"></i>ค้นหาข้อมูล</button></div>
+          </div>
+        </div>
+
+        <div class="card-3d p-4 d-none mt-4" id="screeningResultCard">
+          <div class="text-end mb-4 no-print border-bottom pb-3">
+             <button type="button" class="btn btn-info text-white shadow-sm fw-semibold me-2" onclick="downloadWordScreening()"><i class="fa-solid fa-file-word me-1"></i> โหลดเป็น Word</button>
+             <button type="button" class="btn btn-secondary shadow-sm fw-semibold" onclick="window.print()"><i class="fa-solid fa-print me-1"></i> พิมพ์แบบฟอร์ม (PDF)</button>
+          </div>
+          
+          <form id="historyForm" onsubmit="submitScreening(event)">
+            <input type="hidden" id="scr_CitizenID" name="CitizenID">
+            <input type="hidden" id="scr_PatientID" name="PatientID">
+            
+            <div class="text-center mb-5">
+              <h5 class="fw-bold mb-2">แบบฟอร์มการตรวจคัดกรองโรคติดเชื้อไวรัสตับอักเสบ บี และ ซี</h5>
+              <p class="text-muted">หน่วยงาน...รพ.สต.บ้านกุดแฮดสามัคคี... อำเภอ...กุดบาก... จังหวัด...สกลนคร...</p>
+            </div>
+
+            <div class="form-section bg-light">
+              <h6 class="fw-bold section-title">ส่วนที่ 1 ข้อมูลส่วนบุคคล</h6>
+              <div class="row g-3">
+                <div class="col-md-6">1. ชื่อ - สกุล: <span id="disp_fullname" class="fw-bold text-dark px-2">-</span></div>
+                <div class="col-md-6">เลขประจำตัวประชาชน: <span id="disp_cid" class="fw-bold text-dark px-2">-</span></div>
+                <div class="col-md-12">
+                  2. เพศ: &nbsp;
+                  <div class="form-check form-check-inline ms-2"><input class="form-check-input" type="radio" name="gender" value="ชาย" id="g1"><label class="form-check-label" for="g1">1. ชาย</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="gender" value="หญิง" id="g2"><label class="form-check-label" for="g2">2. หญิง</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="gender" value="เพศทางเลือก"><label class="form-check-label">3. เพศทางเลือก(ระบุ)</label> <input type="text" name="gender_other" class="form-control form-control-sm d-inline-block ms-1" style="width:120px;"></div>
+                </div>
+                <div class="col-md-4">3. วัน เดือน ปี เกิด: <span id="disp_dob" class="fw-bold text-dark px-2">-</span></div>
+                <div class="col-md-8">
+                  4. สัญชาติ: &nbsp;
+                  <div class="form-check form-check-inline ms-2"><input class="form-check-input" type="radio" name="nationality" value="ไทย"><label class="form-check-label">1. ไทย</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="nationality" value="ลาว"><label class="form-check-label">2. ลาว</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="nationality" value="เมียนมาร์"><label class="form-check-label">3. เมียนมาร์</label></div>
+                </div>
+                <div class="col-md-4">5. อายุ: <span id="disp_age" class="fw-bold text-dark px-2">-</span> ปี</div>
+                <div class="col-md-8 d-flex align-items-center">6. อาชีพ: <input type="text" name="occupation" class="form-control form-control-sm ms-2" style="width:250px;"></div>
+                <div class="col-md-12">
+                  7. สถานภาพสมรส: &nbsp;
+                  <div class="form-check form-check-inline ms-2"><input class="form-check-input" type="radio" name="marital_status" value="โสด"><label class="form-check-label">1. โสด</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="marital_status" value="สมรส"><label class="form-check-label">2. สมรส</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="marital_status" value="หม้าย/หย่า"><label class="form-check-label">3. หม้าย/หย่า</label></div>
+                </div>
+                <div class="col-md-12">
+                  8. โรคประจำตัว: &nbsp;
+                  <div class="form-check form-check-inline ms-2"><input class="form-check-input" type="radio" name="underlying_disease" value="ไม่มี"><label class="form-check-label">1. ไม่มี</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="underlying_disease" value="มี"><label class="form-check-label">2. มี (ระบุ)</label> <input type="text" name="underlying_disease_detail" class="form-control form-control-sm d-inline-block ms-1" style="width:200px;"></div>
+                </div>
+                <div class="col-md-12">9. เบอร์โทรศัพท์: <span id="disp_phone" class="fw-bold text-dark px-2">-</span></div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h6 class="fw-bold section-title text-primary">ส่วนที่ 2 โรคไวรัสตับอักเสบ บี</h6>
+              <div class="mb-3">
+                <label>1. ประวัติการตรวจคัดกรองโรคติดเชื้อไวรัสตับอักเสบ บี</label>
+                <div class="form-check form-check-inline ms-3"><input class="form-check-input" type="radio" name="hbv_history" value="ไม่เคยตรวจ"><label class="form-check-label">ไม่เคยตรวจ</label></div>
+                <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hbv_history" value="เคยตรวจ"><label class="form-check-label">เคยตรวจ เมื่อ</label> <input type="text" name="hbv_history_date" class="form-control form-control-sm d-inline-block ms-1" style="width:150px;"></div>
+              </div>
+              <div class="mb-3">
+                <label>2. ประวัติการได้รับวัคซีน</label>
+                <div class="form-check form-check-inline ms-3"><input class="form-check-input" type="radio" name="hbv_vaccine" value="ไม่เคยได้รับ"><label class="form-check-label">ไม่เคยได้รับ</label></div>
+                <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hbv_vaccine" value="เคยได้รับ"><label class="form-check-label">เคยได้รับ เมื่อ</label> <input type="text" name="hbv_vaccine_date" class="form-control form-control-sm d-inline-block ms-1" style="width:150px;"></div>
+                <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hbv_vaccine" value="ไม่แน่ใจ"><label class="form-check-label">ไม่แน่ใจ</label></div>
+              </div>
+              <div class="mb-3">
+                <label>3. ความเสี่ยงต่อโรคไวรัสตับอักเสบ บี</label>
+                <div class="ms-4 mt-2 text-secondary">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_1" value="Yes"><label class="form-check-label">1. เกิดก่อน ปี พ.ศ. 2535</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_2" value="Yes"><label class="form-check-label">2. ใช้สารเสพติดวิธีฉีดเข้าเส้น แม้ว่าจะทดลองใช้เพียงแค่ครั้งเดียว</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_3" value="Yes"><label class="form-check-label">3. เป็นผู้ติดเชื้อเอชไอวี</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_4" value="Yes"><label class="form-check-label">4. เคยได้รับเลือด หรือสารเลือด ก่อนปี 2535</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_5" value="Yes"><label class="form-check-label">5. เคยได้รับการปลูกถ่ายอวัยวะ ก่อนปี 2535</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_6" value="Yes"><label class="form-check-label">6. เคยฟอกเลือดด้วยเครื่องไตเทียม</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_7" value="Yes"><label class="form-check-label">7. เคยมีเพศสัมพันธ์ทางทวารหนัก หรือ มีคู่นอนหลายคนโดยไม่ได้ป้องกัน</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_8" value="Yes"><label class="form-check-label">8. เคยมีคนในครอบครัว เช่น คู่สมรส บิดา มารดา พี่น้อง เป็นผู้ป่วยไวรัสตับอักเสบบี</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_9" value="Yes"><label class="form-check-label">9. เคยสักผิวหนัง เจาะหู ในสถานที่ที่ไม่ใช่สถานพยาบาล</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_10" value="Yes"><label class="form-check-label">10. เคยได้รับการฉีดยา หรือผ่าตัดเล็ก ด้วยแพทย์พื้นบ้าน</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_11" value="Yes"><label class="form-check-label">11. เป็นบุคลากรทางการแพทย์ที่เคยถูกเข็มหรือของมีคมตำขณะปฏิบัติหน้าที่</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hbv_risk_12" value="Yes"><label class="form-check-label">12. เคยใช้อุปกรณ์บางชนิดร่วมกับผู้อื่น เช่น แปรงสีฟัน มีดโกน</label></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label>4. ผลการตรวจหาการติดเชื้อ</label><br>
+                <label class="ms-3 mt-1">4.1 การตรวจหาโปรตีนของเชื้อ (HBsAg)</label>
+                <div class="ms-5 mt-1">
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="HBsAg_Result" value="Negative" id="hbs_neg"><label class="form-check-label">Negative (ผลลบ)</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="HBsAg_Result" value="Positive" id="hbs_pos"><label class="form-check-label text-danger">Positive (ผลบวก)</label></div>
+                </div>
+                <label class="ms-3 mt-3">4.2 การตรวจหาภูมิคุ้มกัน (Anti-HBs) <span class="text-danger">(เฉพาะกรณี HBsAg เป็นลบ)</span></label>
+                <div class="ms-5 mt-1">
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="AntiHBs_Result" value="Negative"><label class="form-check-label">Negative (ผลลบ)</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="AntiHBs_Result" value="Positive"><label class="form-check-label">Positive (ผลบวก)</label></div>
+                </div>
+              </div>
+              
+              <div class="mb-2">
+                <label>5. การส่งต่อเข้าสู่ระบบการรักษา <span class="text-danger">(เฉพาะกรณีที่ ผลการตรวจ HBsAg เป็นบวก)</span></label>
+                <div class="ms-4 mt-2">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="hbv_referral" value="ส่งต่อ">
+                        <label class="form-check-label">ส่งต่อเข้ารับการรักษา สถานบริการ</label>
+                        <input type="text" name="hbv_referral_hos" class="form-control form-control-sm d-inline-block ms-2" style="width:300px;">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="hbv_referral" value="ไม่ส่งต่อ">
+                        <label class="form-check-label">ไม่ถูกส่งต่อเข้ารับการรักษา ระบุสาเหตุ</label>
+                        <input type="text" name="hbv_referral_reason" class="form-control form-control-sm d-inline-block ms-2" style="width:300px;">
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h6 class="fw-bold section-title danger text-danger">ส่วนที่ 3 โรคไวรัสตับอักเสบ ซี</h6>
+              <div class="mb-3">
+                <label>1. ประวัติการตรวจคัดกรองโรคติดเชื้อไวรัสตับอักเสบ ซี</label>
+                <div class="form-check form-check-inline ms-3"><input class="form-check-input" type="radio" name="hcv_history" value="ไม่เคยตรวจ"><label class="form-check-label">ไม่เคยตรวจ</label></div>
+                <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hcv_history" value="เคยตรวจ"><label class="form-check-label">เคยตรวจ เมื่อ</label> <input type="text" name="hcv_history_date" class="form-control form-control-sm d-inline-block ms-1" style="width:150px;"></div>
+              </div>
+              <div class="mb-3">
+                <label>2. ความเสี่ยงต่อโรคไวรัสตับอักเสบ ซี</label>
+                <div class="ms-4 mt-2 text-secondary">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_1" value="Yes"><label class="form-check-label">1. ประชาชนที่เกิดก่อนพ.ศ. 2535 ทุกคน</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_2" value="Yes"><label class="form-check-label">2. เคยใช้สารเสพติดวิธีฉีดเข้าเส้น แม้ว่าจะทดลองใช้เพียงแค่ครั้งเดียว</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_3" value="Yes"><label class="form-check-label">3. เป็นผู้ติดเชื้อเอชไอวี</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_4" value="Yes"><label class="form-check-label">4. เคยได้รับเลือด หรือสารเลือด ก่อนพ.ศ. 2535</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_5" value="Yes"><label class="form-check-label">5. เคยได้รับการปลูกถ่ายอวัยวะ ก่อนพ.ศ. 2535</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_6" value="Yes"><label class="form-check-label">6. เคยฟอกเลือดด้วยเครื่องไตเทียม</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_7" value="Yes"><label class="form-check-label">7. เคยมีเพศสัมพันธ์ทางทวารหนัก หรือ มีคู่นอนหลายคนโดยไม่ได้ป้องกัน</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_8" value="Yes"><label class="form-check-label">8. เคยมีคู่สมรส (คู่นอน) เป็นผู้ป่วยไวรัสตับอักเสบ ซี</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_9" value="Yes"><label class="form-check-label">9. เคยสักผิวหนัง เจาะหู เจาะตามร่างกาย ฝังเข็ม ในสถานที่ที่ไม่ใช่สถานพยาบาล</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_10" value="Yes"><label class="form-check-label">10. เคยได้รับการฉีดยา หรือผ่าตัดเล็ก ด้วยแพทย์พื้นบ้าน</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_11" value="Yes"><label class="form-check-label">11. เป็นบุคลากรทางการแพทย์ที่เคยถูกเข็มหรือของมีคมตำขณะปฏิบัติหน้าที่</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" name="hcv_risk_12" value="Yes"><label class="form-check-label">12. เคยใช้อุปกรณ์บางชนิดร่วมกับผู้อื่น เช่น แปรงสีฟัน มีดโกน กรรไกรตัดเล็บ เข็มฉีดยา เป็นต้น</label></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label>3. ผลการตรวจหาการติดเชื้อไวรัสตับอักเสบ ซี (Anti-HCV)</label>
+                <div class="ms-5 mt-2">
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="AntiHCV_Result" value="Negative" id="hcv_neg"><label class="form-check-label">Negative (ผลลบ)</label></div>
+                  <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="AntiHCV_Result" value="Positive" id="hcv_pos"><label class="form-check-label text-danger">Positive (ผลบวก)</label></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label>4. การตรวจยืนยันการติดเชื้อไวรัสตับอักเสบ ซี <span class="text-danger">(เฉพาะกรณี Anti-HCV เป็นบวก)</span></label>
+                <div class="ms-4 mt-2">
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hcv_confirm" value="ไม่ได้ตรวจ"><label class="form-check-label">ไม่ได้ตรวจ</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hcv_confirm" value="ได้ตรวจ"><label class="form-check-label">ได้ตรวจ</label></div>
+                    <ul class="mt-3 text-secondary" style="list-style-type: disc;">
+                        <li class="mb-2">ห้องปฏิบัติการที่ส่งตรวจ <input type="text" name="hcv_confirm_lab" class="form-control form-control-sm d-inline-block ms-2" style="width:300px;"></li>
+                        <li class="mt-2">ผลการตรวจยืนยันการติดเชื้อไวรัสตับอักเสบ ซี
+                            <div class="ms-4 mt-2">
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hcv_confirm_result" value="Not detected"><label class="form-check-label">Not detected (ไม่พบเชื้อ)</label></div>
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="hcv_confirm_result" value="Detected"><label class="form-check-label text-danger">Detected (พบเชื้อ)</label></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+              </div>
+              <div class="mb-2">
+                  <label>5. การส่งต่อเข้าสู่ระบบการรักษา <span class="text-danger">(เฉพาะกรณี Anti-HCV เป็นบวก)</span></label>
+                  <div class="ms-4 mt-2">
+                      <div class="form-check mb-2">
+                          <input class="form-check-input" type="radio" name="hcv_referral" value="ส่งต่อ">
+                          <label class="form-check-label">ส่งต่อเข้ารับการรักษา สถานบริการ</label>
+                          <input type="text" name="hcv_referral_hos" class="form-control form-control-sm d-inline-block ms-2" style="width:300px;">
+                      </div>
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="hcv_referral" value="ไม่ส่งต่อ">
+                          <label class="form-check-label">ไม่ถูกส่งต่อเข้ารับการรักษา ระบุสาเหตุ</label>
+                          <input type="text" name="hcv_referral_reason" class="form-control form-control-sm d-inline-block ms-2" style="width:300px;">
+                      </div>
+                  </div>
+              </div>
+            </div>
+
+            <div class="form-section bg-light">
+              <h6 class="fw-bold section-title text-dark">ส่วนที่ 4 ข้อมูลผู้รายงาน</h6>
+              <div class="row g-3 ms-2 mb-2">
+                  <div class="col-md-12 d-flex align-items-center gap-2">
+                      <span style="width: 120px;">1. ผู้สัมภาษณ์</span>
+                      <input type="text" name="interviewer_name" class="form-control form-control-sm flex-grow-1">
+                      <span class="ms-2">ตำแหน่ง</span>
+                      <input type="text" name="interviewer_pos" class="form-control form-control-sm" style="width: 150px;">
+                      <span class="ms-2">โทรศัพท์</span>
+                      <input type="text" name="interviewer_tel" class="form-control form-control-sm" style="width: 150px;">
+                  </div>
+                  <div class="col-md-12 d-flex align-items-center gap-2 mt-3">
+                      <span style="width: 120px;">2. ผู้รายงานผล</span>
+                      <input type="text" name="reporter_name" class="form-control form-control-sm flex-grow-1">
+                      <span class="ms-2">ตำแหน่ง</span>
+                      <input type="text" name="reporter_pos" class="form-control form-control-sm" style="width: 150px;">
+                      <span class="ms-2">โทรศัพท์</span>
+                      <input type="text" name="reporter_tel" class="form-control form-control-sm" style="width: 150px;">
+                  </div>
+              </div>
+            </div>
+
+            <div class="signature-box mt-4">
+                <div class="signature-container">
+                    <h6 class="fw-bold mb-5">ลงชื่อผู้รับบริการ</h6>
+                    <div style="font-size: 1.2rem;">(...............................................................)</div>
+                </div>
+            </div>
+            
+            <div class="col-12 mt-5 pt-4 border-top text-center no-print">
+              <button type="submit" class="btn btn-primary px-5 py-3 fw-semibold btn-lg shadow-sm rounded-pill"><i class="fa-solid fa-save me-2"></i>บันทึกแบบฟอร์มเข้าสู่ระบบ</button>
+            </div>
+          </form>
+        </div>`;
+    }
+
+    function downloadWordScreening() {
+      const element = document.getElementById('historyForm');
+      if (!element) return;
+      
+      const clone = element.cloneNode(true);
+      
+      const btn = clone.querySelector('button[type="submit"]');
+      if(btn) btn.remove();
+      const noPrintElements = clone.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => el.remove());
+
+      const textInputs = clone.querySelectorAll('input[type="text"]');
+      textInputs.forEach(input => {
+          const span = document.createElement('span');
+          const val = input.value.trim();
+          span.innerHTML = val ? `<span style="color: blue;"> ${val} </span>` : ' ............................................ ';
+          input.parentNode.replaceChild(span, input);
+      });
+
+      const radios = clone.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+      radios.forEach(input => {
+          const span = document.createElement('span');
+          span.style.fontFamily = 'sans-serif';
+          span.innerHTML = input.checked ? '&#9745; ' : '&#9744; ';
+          input.parentNode.insertBefore(span, input);
+          input.remove();
+      });
+
+      // ดึงส่วนที่ 3 ขึ้นหน้าใหม่แบบเป๊ะๆ สำหรับ Word
+      const formSections = clone.querySelectorAll('.form-section');
+      if (formSections.length >= 3) {
+          formSections[2].insertAdjacentHTML('beforebegin', '<br clear="all" style="page-break-before:always; mso-break-type:page-break;" />');
+      }
+
+      const header = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>แบบฟอร์มซักประวัติ</title>
+        <style>
+          @page { size: A4; margin: 1.5cm 1.5cm; } 
+          body { font-family: "TH SarabunPSK", "TH Sarabun New", "Sarabun", sans-serif; font-size: 16pt; line-height: 1.0; color: #000; }
+          h5 { font-size: 18pt; font-weight: bold; text-align: center; margin: 0 0 4pt 0; }
+          .text-muted { text-align: center; font-size: 16pt; margin-bottom: 6pt; }
+          .section-title { font-size: 18pt; font-weight: bold; text-decoration: underline; margin: 4pt 0; }
+          p { margin: 0 0 2pt 0; }
+          .fw-bold { font-weight: bold; }
+          .text-center { text-align: center; }
+          .text-end { text-align: right; }
+          .text-primary, .text-danger, .text-info, .text-dark, .text-muted { color: #000 !important; }
+          .bg-light, .bg-white, .bg-transparent { background-color: transparent !important; }
+          .border, .border-bottom, .border-start, .rounded, .shadow-sm, .card, .form-section { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 4pt !important;}
+          .mb-2, .mb-3, .mb-4, .mb-5 { margin-bottom: 4pt !important; }
+          .mt-2, .mt-3, .mt-4, .mt-5 { margin-top: 4pt !important; }
+          .ms-2 { margin-left: 10pt; }
+          .ms-3 { margin-left: 20pt; }
+          .ms-4 { margin-left: 30pt; }
+          .ms-5 { margin-left: 40pt; }
+          .d-flex, .align-items-center, .gap-2 { display: inline-block; }
+          ul { margin-top: 0; margin-bottom: 0; }
+          li { margin-bottom: 2pt; }
+          h6 { font-size: 16pt; } 
+          /* จัดการกล่องลายเซ็นให้อยู่ขวาใน Word */
+          .signature-box { text-align: right; margin-top: 40pt; width: 100%; display: block; }
+          .signature-container { display: inline-block; width: 250pt; text-align: center; }
+        </style>
+      </head><body>`;
+      const footer = "</body></html>";
+      
+      const sourceHTML = header + clone.innerHTML + footer;
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      document.body.appendChild(fileDownload);
+      fileDownload.href = source;
+      
+      const cid = document.getElementById('scr_CitizenID').value || 'ประชากร';
+      fileDownload.download = 'แบบซักประวัติ_' + cid + '.doc';
+      
+      fileDownload.click();
+      document.body.removeChild(fileDownload);
+    }
+
+    function searchForScreening() {
+      const cid = document.getElementById('searchCidScreening').value.trim();
+      if(cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณาระบุเลข 13 หลัก', 'warning');
+      
+      showLoading('กำลังค้นหาข้อมูล...');
+      callServer('checkExistingScreening', { CitizenID: cid }).then(res => {
+        hideLoading();
+        if(res.success && res.found) {
+          document.getElementById('screeningResultCard').classList.remove('d-none');
+          document.getElementById('historyForm').reset(); 
+          
+          document.getElementById('scr_CitizenID').value = cid;
+          document.getElementById('scr_PatientID').value = res.data.PatientID || '';
+          
+          document.getElementById('disp_fullname').innerText = (res.data.Prefix||'') + (res.data.FirstName||'') + ' ' + (res.data.LastName||'');
+          document.getElementById('disp_cid').innerText = cid;
+          
+          // 🚀 ใช้ฟังก์ชันแปลงวันที่ ก่อนนำไปแสดงผล
+          document.getElementById('disp_dob').innerText = formatDisplayDate(res.data.DateofBirth) || '-';
+          
+          document.getElementById('disp_age').innerText = res.data.Age || '-';
+          document.getElementById('disp_phone').innerText = res.data.Phone || '-';
+          
+          if(res.data.Gender === 'หญิง') document.getElementById('g2').checked = true;
+          else if(res.data.Gender === 'ชาย') document.getElementById('g1').checked = true;
+
+          if (res.hasScreening) {
+            Swal.fire({ toast:true, position:'top-end', icon:'info', title:'พบประวัติคัดกรองเดิม ดึงข้อมูลมาแสดงแล้ว', showConfirmButton:false, timer:2500 });
+            
+            if (res.data.FormDataJSON) {
+                try {
+                    const savedData = JSON.parse(res.data.FormDataJSON);
+                    const form = document.getElementById('historyForm');
+                    
+                    Object.keys(savedData).forEach(key => {
+                        const inputs = form.querySelectorAll(`[name="${key}"]`);
+                        if (inputs.length === 0) return;
+                        
+                        if (inputs[0].type === 'radio') {
+                            inputs.forEach(radio => {
+                                if (radio.value === savedData[key]) radio.checked = true;
+                            });
+                        } else if (inputs[0].type === 'checkbox') {
+                            inputs[0].checked = (savedData[key] === 'Yes');
+                        } else {
+                            inputs[0].value = savedData[key];
+                        }
+                    });
+                } catch(e) { console.error('Error parsing FormDataJSON', e); }
+            } else {
+                if(res.data.HBsAg_Result === 'Negative') document.getElementById('hbs_neg').checked = true;
+                if(res.data.HBsAg_Result === 'Positive') document.getElementById('hbs_pos').checked = true;
+                if(res.data.AntiHCV_Result === 'Negative') document.getElementById('hcv_neg').checked = true;
+                if(res.data.AntiHCV_Result === 'Positive') document.getElementById('hcv_pos').checked = true;
+            }
+          } else {
+             Swal.fire({ toast:true, position:'top-end', icon:'success', title:'พบประวัติ ดึงข้อมูลส่วนตัวสำเร็จ', showConfirmButton:false, timer:2000 });
+          }
+        } else {
+          document.getElementById('screeningResultCard').classList.add('d-none');
+          Swal.fire('ไม่พบข้อมูล', 'กรุณาลงทะเบียนประชากรในระบบก่อนทำการซักประวัติ', 'error');
+        }
+      });
+    }
+
+    function submitScreening(e) {
+      e.preventDefault();
+      const form = document.getElementById('historyForm');
+      const formDataObj = Object.fromEntries(new FormData(form).entries());
+      const payload = { CitizenID: document.getElementById('scr_CitizenID').value, ...formDataObj };
+
+      showLoading('กำลังบันทึก...');
+      callServer('createScreening', payload).then(res => {
+        hideLoading();
+        if(res.success) { Swal.fire('สำเร็จ', 'บันทึกแบบซักประวัติเรียบร้อย', 'success'); } 
+        else { Swal.fire('ข้อผิดพลาด', res.message, 'error'); }
+      });
+    }
+
+    function renderAllPatientsList(container) {
+      loadAllPatientsData(container);
+    }
+
+    function loadAllPatientsData(container, forceRefresh = false) {
+      if (!forceRefresh && appCache.patients && (Date.now() - appCache.lastFetchPatients < 300000)) {
+        buildPatientsTableUI(container, appCache.patients);
+        return;
+      }
+
+      showLoading('ดึงข้อมูล...');
+      callServer('getPatients').then(res => {
+        hideLoading();
+        
+        if (res.success) {
+            appCache.patients = res;
+            appCache.lastFetchPatients = Date.now();
+            buildPatientsTableUI(container, res);
+        }
+      });
+    }
+
+    function buildPatientsTableUI(container, res) {
+        container.innerHTML = `
+          <div class="card-3d p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-users text-primary me-2"></i>รายชื่อประชากรทั้งหมด</h4>
+              <button class="btn btn-sm btn-outline-primary rounded-pill shadow-sm fw-semibold" onclick="loadAllPatientsData(document.getElementById('dynamicBody'), true)"><i class="fa-solid fa-rotate me-1"></i> โหลดข้อมูลใหม่</button>
+            </div>
+            <div class="table-responsive">
+              <table id="patientsTable" class="table table-hover align-middle w-100" style="background: white;">
+                <thead class="table-light"><tr><th>ลำดับ</th><th>เลขบัตรประชาชน</th><th>ชื่อ - สกุล</th><th>อายุ</th><th>เบอร์โทร</th><th>วันที่คัดกรอง</th><th>HBsAg</th><th>Anti-HCV</th><th class="text-center">จัดการ</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>`;
+          
+          setTimeout(() => {
+            if($.fn.DataTable.isDataTable('#patientsTable')) {
+                $('#patientsTable').DataTable().destroy();
+            }
+            
+            $('#patientsTable').DataTable({
+                data: res.data || [],
+                deferRender: true,
+                columns: [
+                    { data: null, render: function (data, type, row, meta) { return meta.row + 1; } },
+                    { data: 'CitizenID', render: function(data) { return data || '-'; } },
+                    { data: null, render: function(data, type, row) { 
+                        return (row.Prefix || '') + (row.FirstName || '') + ' ' + (row.LastName || ''); 
+                    }},
+                    { data: 'Age', render: function(data) { return data || '-'; } },
+                    { data: 'Phone', render: function(data) { return data || '-'; } },
+                    { data: 'ScreeningDate', render: function(data) { return formatDisplayDate(data) || '-'; } }, // 🚀 ใช้ฟังก์ชันแปลงวันที่
+                    { data: 'LabtestHepB', render: function(data) { 
+                        const isPos = String(data).match(/Positive|บวก/i);
+                        return isPos ? `<span class="text-danger fw-bold">${data}</span>` : (data || '-');
+                    }},
+                    { data: 'LabtestHepC', render: function(data) { 
+                        const isPos = String(data).match(/Positive|บวก/i);
+                        return isPos ? `<span class="text-danger fw-bold">${data}</span>` : (data || '-');
+                    }},
+                    { data: null, orderable: false, render: function(data, type, row) { 
+                        return `<div class="d-flex gap-2 justify-content-center">
+                                  <button class="btn btn-sm btn-outline-warning" onclick="editPatientFromTable('${row.CitizenID}')" title="แก้ไขข้อมูล"><i class="fa-solid fa-pen-to-square"></i></button>
+                                  <button class="btn btn-sm btn-outline-danger" onclick="deletePatient('${row.CitizenID}')" title="ลบข้อมูล"><i class="fa-solid fa-trash"></i></button>
+                                </div>`;
+                    }}
+                ],
+                language: { 
+                  url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json',
+                  emptyTable: "ไม่พบข้อมูลประชากรในระบบ"
+                },
+                pageLength: 50,
+                lengthMenu: [25, 50, 100, 200, 500],
+                ordering: false 
+            });
+          }, 100);
+    }
+
+    window.editPatientFromTable = function(cid) {
+      Swal.fire({
+          title: 'แก้ไขข้อมูลประชากร?',
+          text: "ระบบจะพาไปยังหน้าลงทะเบียน เพื่อดึงประวัติเดิมมาแก้ไข",
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'ไปหน้าแก้ไข',
+          cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+          if(result.isConfirmed) {
+              switchPage('patients');
+              setTimeout(() => {
+                  document.getElementById('CitizenID').value = cid;
+                  checkPatientHistory();
+              }, 500);
+          }
+      });
+    };
+
+    window.deletePatient = function(cid) {
+      Swal.fire({
+          title: 'ยืนยันการลบข้อมูล?',
+          text: "คุณกำลังลบประชากรเลขบัตร " + cid + " ข้อมูลนี้จะไม่สามารถกู้คืนได้!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'ใช่, ลบเลย!',
+          cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              showLoading('กำลังลบข้อมูล...');
+              callServer('deletePatient', { CitizenID: cid }).then(res => {
+                  hideLoading();
+                  if(res.success) {
+                      Swal.fire('ลบสำเร็จ!', 'ข้อมูลถูกลบออกจากระบบแล้ว', 'success');
+                      appCache.lastFetchPatients = 0; 
+                      loadAllPatientsData(document.getElementById('dynamicBody'), true);
+                  } else {
+                      Swal.fire('ข้อผิดพลาด', res.message, 'error');
+                  }
+              });
+          }
+      });
+    };
+
+    function renderFollowUp(container) {
+      loadFollowUpData(container);
+    }
+
+    function loadFollowUpData(container) {
+      showLoading('ดึงข้อมูลเคสผิดปกติ...');
+      callServer('getFollowUpAbnormal').then(res => {
+        hideLoading();
+        let rowsHtml = '';
+        if (res.success && res.data && res.data.length > 0) {
+          rowsHtml = res.data.map((p, i) => {
+            let currentStatusStr = String(p.CurrentStatus || 'รอดำเนินการ');
+            let statusBadge = 'bg-secondary';
+            if(currentStatusStr === 'ส่งต่อโรงพยาบาล') statusBadge = 'bg-info text-dark';
+            else if(currentStatusStr === 'อยู่ระหว่างการรักษา' || currentStatusStr === 'นัดเจาะเลือดซ้ำ') statusBadge = 'bg-primary';
+            else if(currentStatusStr === 'รักษาเสร็จสิ้น/ปกติ') statusBadge = 'bg-success';
+            else if(currentStatusStr.includes('ติดต่อไม่ได้') || currentStatusStr.includes('ปฏิเสธ')) statusBadge = 'bg-danger';
+            else if(currentStatusStr === 'รอดำเนินการ') statusBadge = 'bg-warning text-dark';
+
+            return `
+            <tr>
+              <td class="text-center">${i+1}</td>
+              <td class="fw-semibold">${p.CitizenID}</td>
+              <td>${(p.Prefix||'') + (p.FirstName||'') + ' ' + (p.LastName||'')}</td>
+              <td class="text-center"><span class="badge ${String(p.HBsAg_Result).match(/Positive/i)?'bg-danger':'bg-success'} p-2">${p.HBsAg_Result || '-'}</span></td>
+              <td class="text-center"><span class="badge ${String(p.AntiHCV_Result).match(/Positive/i)?'bg-danger':'bg-success'} p-2">${p.AntiHCV_Result || '-'}</span></td>
+              <td>${p.Phone || '-'}</td>
+              <td class="text-center"><span class="badge ${statusBadge} p-2">${currentStatusStr}</span></td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3 shadow-sm" onclick="openFollowUpModal('${p.CitizenID}', '${p.FirstName} ${p.LastName}')">
+                  <i class="fa-solid fa-notes-medical me-1"></i> บันทึกติดตาม
+                </button>
+              </td>
+            </tr>
+          `;
+          }).join('');
+        } else {
+          rowsHtml = '<tr><td colspan="8" class="text-center py-5 text-muted"><i class="fa-solid fa-folder-open fa-3x mb-3 d-block"></i> ไม่พบเคสผิดปกติที่ต้องติดตาม</td></tr>';
+        }
+
+        container.innerHTML = `
+          <div class="card-3d p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h4 class="fw-bold text-danger mb-1"><i class="fa-solid fa-user-clock me-2"></i>ระบบติดตามผลผิดปกติ (Follow-up)</h4>
+                <p class="text-muted mb-0 small">จัดการและติดตามผู้ป่วยที่ผลคัดกรองไวรัสตับอักเสบบีและซีเป็นบวก (Positive)</p>
+              </div>
+              <button class="btn btn-light border shadow-sm rounded-pill px-3" onclick="switchPage('followup', event)"><i class="fa-solid fa-rotate-right text-primary me-1"></i> รีเฟรชข้อมูล</button>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-hover align-middle table-bordered" style="background-color: white;">
+                <thead class="table-light text-center">
+                  <tr><th>#</th><th>เลขบัตรประชาชน</th><th>ชื่อ - สกุล</th><th>HBsAg (บี)</th><th>Anti-HCV (ซี)</th><th>เบอร์ติดต่อ</th><th>สถานะล่าสุด</th><th>จัดการ</th></tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="modal fade" id="followUpModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title fw-bold"><i class="fa-solid fa-file-medical me-2"></i>บันทึกการติดตามและส่งต่อผู้ป่วย</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form onsubmit="submitFollowUp(event)">
+                  <div class="modal-body bg-light">
+                    <input type="hidden" id="fu_cid">
+                    
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                      <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-user me-2"></i>ผู้รับบริการ: <span id="fu_name_disp" class="text-primary ms-1"></span></h6>
+                    </div>
+
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label fw-semibold">วันที่ติดตามผล</label>
+                        <input type="date" class="form-control" id="fu_date" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label fw-semibold">ประเภทการติดตาม</label>
+                        <select class="form-select" id="fu_type" required>
+                          <option value="แจ้งผลการคัดกรอง">แจ้งผลการคัดกรองเบื้องต้น</option>
+                          <option value="นัดหมายเจาะเลือดซ้ำ">นัดหมายเจาะเลือดซ้ำ (Confirmatory Test)</option>
+                          <option value="ดำเนินการส่งต่อ (Refer)">ดำเนินการส่งต่อ (Refer) ไป รพ.</option>
+                          <option value="ติดตามอาการ/อื่นๆ">ติดตามอาการหลังการรักษา / อื่นๆ</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label fw-semibold">สถานะผู้ป่วยปัจจุบัน</label>
+                        <select class="form-select border-danger" id="fu_status" required>
+                          <option value="">-- เลือกสถานะ --</option>
+                          <option value="รับทราบผล/รอส่งต่อ">รับทราบผล/รอส่งต่อ</option>
+                          <option value="นัดเจาะเลือดซ้ำ">นัดเจาะเลือดซ้ำ</option>
+                          <option value="ส่งต่อโรงพยาบาล">ส่งต่อโรงพยาบาลแล้ว</option>
+                          <option value="อยู่ระหว่างการรักษา">อยู่ระหว่างการรักษาที่ รพ.</option>
+                          <option value="รักษาเสร็จสิ้น/ปกติ">รักษาเสร็จสิ้น / ผลยืนยันปกติ</option>
+                          <option value="ติดต่อไม่ได้">ติดต่อไม่ได้ / เปลี่ยนเบอร์</option>
+                          <option value="ปฏิเสธการรักษา">ปฏิเสธการส่งต่อ / ไม่ประสงค์รักษา</option>
+                          <option value="เสียชีวิต">เสียชีวิต</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label fw-semibold">โรงพยาบาลที่ส่งต่อ (ถ้ามี)</label>
+                        <input type="text" class="form-control" id="fu_refer" placeholder="เช่น รพ.ศูนย์, รพ.ชุมชน">
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label fw-semibold">วันที่นัดหมายครั้งถัดไป (ถ้ามี)</label>
+                        <input type="date" class="form-control" id="fu_next_date">
+                      </div>
+                      <div class="col-md-12">
+                        <label class="form-label fw-semibold">หมายเหตุ / ข้อมูลเพิ่มเติม</label>
+                        <textarea class="form-control" id="fu_remark" rows="3" placeholder="ระบุผลแล็บ อาการ หรือข้อมูลการสนทนาเพิ่มเติม..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold shadow-sm"><i class="fa-solid fa-save me-2"></i>บันทึกข้อมูลเข้าสู่ระบบ</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function openFollowUpModal(cid, name) {
+      document.getElementById('fu_cid').value = cid;
+      document.getElementById('fu_name_disp').innerText = name;
+      document.getElementById('fu_date').valueAsDate = new Date();
+      document.getElementById('fu_type').value = 'แจ้งผลการคัดกรอง';
+      document.getElementById('fu_status').value = '';
+      document.getElementById('fu_refer').value = '';
+      document.getElementById('fu_next_date').value = '';
+      document.getElementById('fu_remark').value = '';
+      new bootstrap.Modal(document.getElementById('followUpModal')).show();
+    }
+
+    function submitFollowUp(e) {
+      e.preventDefault();
+      const payload = {
+        CitizenID: document.getElementById('fu_cid').value,
+        FollowUpDate: document.getElementById('fu_date').value,
+        FollowUpType: document.getElementById('fu_type').value,
+        Status: document.getElementById('fu_status').value,
+        ReferToHospital: document.getElementById('fu_refer').value,
+        NextApptDate: document.getElementById('fu_next_date').value,
+        Remark: document.getElementById('fu_remark').value
+      };
+      
+      const modalEl = document.getElementById('followUpModal');
+      let modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+      
+      showLoading('กำลังบันทึกประวัติการติดตามลงฐานข้อมูล...');
+      callServer('apiCreateFollowUp', payload).then(res => {
+        hideLoading();
+        if(res.success) { Swal.fire('บันทึกสำเร็จ', res.message, 'success').then(() => switchPage('followup')); }
+        else { Swal.fire('เกิดข้อผิดพลาด', res.message, 'error'); }
+      });
+    }
+
+    function previewLogo(event) {
+      const file = event.target.files[0];
+      if (file) {
+        if (file.size > 1024 * 1024) {
+            Swal.fire('ขนาดไฟล์ใหญ่เกินไป', 'กรุณาใช้รูปภาพขนาดไม่เกิน 1MB (แนะนำ 100-300KB) เพื่อให้ระบบทำงานได้รวดเร็ว', 'warning');
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          customLogoDataUrl = e.target.result;
+          localStorage.setItem('savedHospitalLogo', customLogoDataUrl);
+
+          const imgEl = document.getElementById('certLogoImg');
+          if (imgEl) imgEl.src = customLogoDataUrl;
+          
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'บันทึกโลโก้สำเร็จ ระบบจะจดจำไว้ให้', showConfirmButton: false, timer: 2000 });
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function resetLogo() {
+      localStorage.removeItem('savedHospitalLogo');
+      customLogoDataUrl = DEFAULT_LOGO_URL;
+      const imgEl = document.getElementById('certLogoImg');
+      if (imgEl) imgEl.src = customLogoDataUrl;
+      document.getElementById('logoUploadInput').value = '';
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'คืนค่าโลโก้เริ่มต้นสำเร็จ', showConfirmButton: false, timer: 1500 });
+    }
+
+    function renderCertificate(container) {
+      container.innerHTML = `
+        <div class="card-3d p-4 mb-4 no-print">
+          <h4 class="fw-bold mb-3 text-danger"><i class="fa-solid fa-file-medical me-2"></i>พิมพ์ใบรับรองผลคัดกรอง</h4>
+          <p class="text-muted">ค้นหาประวัติด้วยเลขบัตรประชาชน และเลือกรูปโลโก้ รพ.สต. เพื่อออกเอกสารรับรองอย่างเป็นทางการ</p>
+          
+          <div class="row g-2 align-items-center mb-3">
+            <div class="col-md-5">
+              <label class="form-label fw-semibold small text-secondary mb-1">อัปโหลด/เปลี่ยนตราโลโก้ รพ.สต. (ทำครั้งเดียว):</label>
+              <div class="d-flex gap-2">
+                <input type="file" id="logoUploadInput" class="form-control form-control-sm" accept="image/*" onchange="previewLogo(event)">
+                <button class="btn btn-sm btn-outline-secondary text-nowrap" onclick="resetLogo()" title="คืนค่าเดิม"><i class="fa-solid fa-rotate-left"></i> คืนค่า</button>
+              </div>
+            </div>
+            <div class="col-md-7 text-muted small mt-2 mt-md-0">
+              <i class="fa-solid fa-circle-check text-success me-1"></i> <b class="text-success">มีระบบจำโลโก้อัตโนมัติ</b> เมื่อคุณแนบไฟล์ 1 ครั้ง ระบบจะเซฟเก็บไว้ในคอมพิวเตอร์เครื่องนี้ คุณไม่ต้องแนบไฟล์ใหม่ในครั้งต่อไป
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-9"><input type="text" class="form-control form-control-lg" id="certCidSearch" placeholder="ระบุเลขบัตรประชาชน 13 หลัก..." maxlength="13"></div>
+            <div class="col-md-3"><button class="btn btn-danger btn-lg w-100 fw-semibold" onclick="searchForCertificate()"><i class="fa-solid fa-search me-2"></i>ค้นหาเพื่อออกใบรับรอง</button></div>
+          </div>
+        </div>
+        <div id="certificateContainer" class="d-none">
+          <div class="text-end mb-3 no-print">
+            <button class="btn btn-info fw-semibold shadow text-white me-2" onclick="downloadWordCert()"><i class="fa-solid fa-file-word me-2"></i> โหลดเป็น Word</button>
+            <button class="btn btn-primary fw-semibold shadow" onclick="window.print()"><i class="fa-solid fa-print me-2"></i> พิมพ์เอกสาร (Print)</button>
+          </div>
+          <div class="certificate-paper print-certificate-container" id="printableCert"></div>
+        </div>
+      `;
+    }
+
+    function downloadWordCert() {
+      const element = document.getElementById('printableCert');
+      if (!element) return;
+      
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>ใบรับรองผลคัดกรอง</title></head><body style='font-family: \"Sarabun\", \"TH SarabunPSK\", sans-serif;'>";
+      const footer = "</body></html>";
+      
+      const sourceHTML = header + element.innerHTML + footer;
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      document.body.appendChild(fileDownload);
+      fileDownload.href = source;
+      
+      const cid = document.getElementById('certCidSearch').value || 'บุคคล';
+      fileDownload.download = 'ใบรับรองผลคัดกรอง_' + cid + '.doc';
+      
+      fileDownload.click();
+      document.body.removeChild(fileDownload);
+    }
+
+    function searchForCertificate() {
+      const cid = document.getElementById('certCidSearch').value.trim();
+      if(cid.length !== 13) return Swal.fire('แจ้งเตือน', 'กรุณาระบุเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
+      
+      showLoading('ตรวจสอบข้อมูลเพื่อสร้างใบรับรอง...');
+      callServer('checkExistingScreening', { CitizenID: cid }).then(res => {
+        hideLoading();
+        if(res.success && res.found) {
+          const hasLabResult = (res.data.LabtestHepB && res.data.LabtestHepB !== '') || 
+                               (res.data.LabtestHepC && res.data.LabtestHepC !== '') || 
+                               res.hasScreening;
+                               
+          if(hasLabResult) {
+            generateCertificateHTML(res.data);
+            document.getElementById('certificateContainer').classList.remove('d-none');
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ดึงข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500 });
+          } else {
+            Swal.fire('ยังไม่มีผลตรวจ', 'พบรายชื่อในระบบ แต่ยังไม่ได้บันทึกผลตรวจคัดกรองหรือผลแล็บ', 'warning');
+          }
+        } else {
+          Swal.fire('ไม่พบข้อมูล', 'ไม่พบรายชื่อในระบบฐานข้อมูล', 'error');
+        }
+      });
+    }
+
+    function generateCertificateHTML(data) {
+      const pName = `${data.Prefix || ''}${data.FirstName || ''} ${data.LastName || ''}`;
+      
+      let dayStr = '.....', monthStr = '....................', yearStr = '.........', timeStr = '.........';
+      
+      let d = new Date();
+      if (data.ScreeningDate) {
+          let str = String(data.ScreeningDate).trim();
+          if (str.match(/^\d{4}-\d{2}-\d{2}T/)) {
+              d = new Date(str);
+          } else if (str.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+              let parts = str.split('/');
+              d = new Date(parts[2] - 543, parts[1] - 1, parts[0]);
+          } else if (str.match(/^\d{4}-\d{2}-\d{2}$/)) {
+              d = new Date(str);
+          }
+      }
+
+      try {
+        const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+        dayStr = d.getDate() || '.....';
+        monthStr = thaiMonths[d.getMonth()] || '....................';
+        let y = d.getFullYear();
+        yearStr = y ? (y > 2400 ? y : y + 543) : '.........';
+        
+        const now = new Date();
+        timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      } catch(e){}
+
+      const valB = String(data.LabtestHepB || data.HBsAg_Result || '');
+      const valC = String(data.LabtestHepC || data.AntiHCV_Result || '');
+
+      const isHbsPos = valB.match(/Positive|บวก/i);
+      const isHbsNeg = valB.match(/Negative|ลบ/i);
+      const isHcvPos = valC.match(/Positive|บวก/i);
+      const isHcvNeg = valC.match(/Negative|ลบ/i);
+
+      const checkMark = '<span style="font-size:22pt; line-height: 0.5; vertical-align: bottom; font-family: sans-serif;">&#9745;</span>';
+      const uncheckMark = '<span style="font-size:22pt; line-height: 0.5; vertical-align: bottom; font-family: sans-serif;">&#9744;</span>';
+
+      document.getElementById('printableCert').innerHTML = `
+        <div class="cert-inner-page" style="font-family: 'Sarabun', 'TH SarabunPSK', serif; color: #000; line-height: 1.5; font-size: 16pt; padding: 20px 40px; width: 100%; max-width: 800px; margin: 0 auto; background: #fff; box-sizing: border-box;">
+          
+          <div style="text-align: center; margin-bottom: 10px;">
+            <img id="certLogoImg" src="${customLogoDataUrl}" style="width: 130px; height: 130px; object-fit: contain; display: inline-block;" alt="Logo">
+          </div>
+          
+          <div style="text-align: center; font-weight: bold; font-size: 18pt; margin-bottom: 15px;">
+            หนังสือรับรองผลการตรวจไวรัสตับอักเสบบีและซี
+          </div>
+          
+          <div style="text-align: center; margin-bottom: 20px;">
+            โรงพยาบาลส่งเสริมสุขภาพตำบลบ้านกุดแฮดสามัคคี ตำบลกุดบาก อำเภอกุดบาก จังหวัดสกลนคร<br>
+            ได้ทำการตรวจคัดกรองไวรัสตับอักเสบบีและซี
+          </div>
+          
+          <div style="margin-bottom: 20px; line-height: 1.9;">
+            เรียนคุณ <span style="display: inline-block; width: 240px; border-bottom: 1px dotted #000; text-align: center;">${pName}</span>
+            เลขบัตรประชาชน <span style="display: inline-block; width: 180px; border-bottom: 1px dotted #000; text-align: center;">${data.CitizenID}</span>
+            <br>
+            ที่อยู่ <span style="display: inline-block; min-width: 100px; border-bottom: 1px dotted #000; text-align: center;">${data.Address || '-'}</span>
+            หมู่ที่ <span style="display: inline-block; min-width: 40px; border-bottom: 1px dotted #000; text-align: center;">${data.Moo || '-'}</span>
+            ตำบล <span style="display: inline-block; min-width: 90px; border-bottom: 1px dotted #000; text-align: center;">${data.SubDistrict || 'กุดบาก'}</span>
+            อำเภอ <span style="display: inline-block; min-width: 90px; border-bottom: 1px dotted #000; text-align: center;">${data.District || 'กุดบาก'}</span>
+            จังหวัด <span style="display: inline-block; min-width: 90px; border-bottom: 1px dotted #000; text-align: center;">${data.Province || 'สกลนคร'}</span>
+          </div>
+          
+          <div style="text-align: center; margin-bottom: 25px;">
+            เมื่อวันที่ <span style="display: inline-block; min-width: 50px; border-bottom: 1px dotted #000; text-align: center;">${dayStr}</span>
+            เดือน <span style="display: inline-block; min-width: 120px; border-bottom: 1px dotted #000; text-align: center;">${monthStr}</span>
+            พ.ศ. <span style="display: inline-block; min-width: 70px; border-bottom: 1px dotted #000; text-align: center;">${yearStr}</span>
+            เวลา <span style="display: inline-block; min-width: 70px; border-bottom: 1px dotted #000; text-align: center;">${timeStr}</span> น.
+          </div>
+          
+          <div style="margin-left: 40px; margin-bottom: 20px;">
+            <b style="font-size: 16pt;">โดยวิธี Rapid Test Device Whole blood (HBsAg) ไวรัสตับอักเสบบี</b>
+            <div style="margin-top: 5px; display: flex; align-items: flex-start;">
+              <div style="width: 90px; margin-top: 5px;">ผลตรวจ</div>
+              <div>
+                <div style="margin-bottom: 5px; display: flex; align-items: center; gap: 12px;">
+                  ${isHbsNeg ? checkMark : uncheckMark} <span style="margin-top: 2px;">Negative แปลผล ปกติ</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  ${isHbsPos ? checkMark : uncheckMark} <span style="margin-top: 2px;">Positive แปลผล ผิดปกติ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="margin-left: 40px; margin-bottom: 25px;">
+            <b style="font-size: 16pt;">โดยวิธี Rapid Test Device Whole blood (HCV) ไวรัสตับอักเสบซี</b>
+            <div style="margin-top: 5px; display: flex; align-items: flex-start;">
+              <div style="width: 90px; margin-top: 5px;">ผลตรวจ</div>
+              <div>
+                <div style="margin-bottom: 5px; display: flex; align-items: center; gap: 12px;">
+                  ${isHcvNeg ? checkMark : uncheckMark} <span style="margin-top: 2px;">Negative แปลผล ปกติ</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  ${isHcvPos ? checkMark : uncheckMark} <span style="margin-top: 2px;">Positive แปลผล ผิดปกติ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; padding-right: 20px; margin-top: 40px; page-break-inside: avoid;">
+            <div style="text-align: center; width: 380px;">
+              <div style="margin-bottom: 40px;">ขอแสดงความนับถือ</div>
+              <div style="margin-bottom: 5px;">(นายแสงจันทร์ อัตรสาร)</div>
+              <div>ผู้อำนวยการโรงพยาบาลส่งเสริมสุขภาพตำบลบ้านกุดแฮดสามัคคี</div>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function topLoginClick() {
+      if (isAdminLoggedIn) {
+        Swal.fire({
+          title: 'ออกจากระบบ?',
+          text: "คุณต้องการออกจากระบบเจ้าหน้าที่ใช่หรือไม่?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'ออกจากระบบ',
+          cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            
+            showLoading('กำลังออกจากระบบและทำลายเซสชัน...');
+            callServer('apiLogout').then(() => {
+                hideLoading();
+                isAdminLoggedIn = false;
+                currentAdminUser = null;
+                userRole = '';
+                sessionStorage.removeItem('appSessionToken');
+                sessionStorage.removeItem('appUserRole');
+                appSessionToken = 'PUBLIC_ACCESS';
+                
+                const btn = document.getElementById('headerLoginBtn');
+                if (btn) {
+                  btn.innerHTML = `<i class="fa-solid fa-right-to-bracket me-1"></i> Login`;
+                  btn.className = 'btn btn-light btn-sm fw-semibold text-success px-3 rounded-pill';
+                }
+                updateSidebarVisibility();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ออกจากระบบเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                switchPage('dashboard');
+            });
+          }
+        });
+      } else {
+        Swal.fire({
+          title: '<i class="fa-solid fa-lock text-danger mb-2"></i><br>เข้าสู่ระบบสำหรับเจ้าหน้าที่ / อสม.',
+          html: `<input id="swal-user" class="swal2-input" placeholder="Username (เช่น VHV หรือ admin)"><input id="swal-pass" class="swal2-input" type="password" placeholder="Password">`,
+          focusConfirm: false, showCancelButton: true, confirmButtonText: 'เข้าสู่ระบบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#0f766e', showLoaderOnConfirm: true,
+          preConfirm: async () => {
+            const user = document.getElementById('swal-user').value;
+            const pass = document.getElementById('swal-pass').value;
+            if (!user || !pass) { 
+              Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน'); 
+              return false; 
+            }
+            try {
+              const res = await callServer('apiLogin', { user: user, pass: pass });
+              if (!res || !res.success) { 
+                Swal.showValidationMessage(res ? res.message : 'เกิดข้อผิดพลาดในการเชื่อมต่อ'); 
+                return false; 
+              }
+              res.login_id = user; 
+              return res;
+            } catch (error) {
+              Swal.showValidationMessage('ข้อผิดพลาด: ' + error.message);
+              return false;
+            }
+          }
+        }).then((result) => {
+          if (result.isConfirmed && result.value && result.value.success) {
+            
+            isAdminLoggedIn = true;
+            currentAdminUser = result.value.login_id;
+            userRole = result.value.role || 'ADMIN';
+            
+            appSessionToken = result.value.sessionToken;
+            sessionStorage.setItem('appSessionToken', appSessionToken);
+            sessionStorage.setItem('appUserRole', userRole);
+            
+            const btn = document.getElementById('headerLoginBtn');
+            if (btn) {
+              const roleName = userRole === 'VHV' ? 'อสม.' : 'เจ้าหน้าที่';
+              btn.innerHTML = `<i class="fa-solid fa-user-check me-1"></i> ${result.value.username} (Logout)`;
+              btn.className = 'btn btn-light btn-sm fw-semibold text-danger px-3 rounded-pill';
+            }
+
+            updateSidebarVisibility();
+            
+            if (userRole === 'ADMIN') {
+                setTimeout(() => {
+                    callServer('getPatients').then(res => {
+                        if(res.success) { 
+                            appCache.patients = res; 
+                            appCache.lastFetchPatients = Date.now(); 
+                        }
+                    });
+                }, 1000);
+            }
+
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ยินดีต้อนรับ คุณ ' + result.value.username, showConfirmButton: false, timer: 2500 });
+            switchPage('dashboard');
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
